@@ -1,17 +1,17 @@
-import { createBrowserRouter } from "react-router-dom";
-
+import { createHashRouter } from "react-router-dom";  // <-- was createBrowserRouter
 import LandingPage from "../pages/landingPage";
-const routes = createBrowserRouter([{
-path:"/",
-element:<LandingPage/>,
-children:[
-    {
-        index:true,
-        element:<LandingPage/>,
-    },
-]
 
-
-}]);
+const routes = createHashRouter([  // <-- use createHashRouter
+  {
+    path: "/",
+    element: <LandingPage />,
+    children: [
+      {
+        index: true,
+        element: <LandingPage />,
+      },
+    ]
+  }
+]);
 
 export default routes;
