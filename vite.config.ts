@@ -5,4 +5,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(),tailwindcss()],
    base: '/portfolio/',
+   define: {
+    'process.env': {},
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
 })
