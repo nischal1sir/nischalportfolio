@@ -1,10 +1,12 @@
-import { memo } from 'react';
+import { memo, StrictMode } from 'react';
+import routes from './const/routes';
+import { RouterProvider} from 'react-router-dom'
 
 const App = () => {
   return (
-    <div>
-      <h2>App</h2>
-    </div>
+    <StrictMode>
+      <RouterProvider router={routes}/>
+    </StrictMode>
   );
 };
 
