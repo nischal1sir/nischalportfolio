@@ -1,12 +1,15 @@
-import { memo, StrictMode } from 'react';
-import routes from './const/routes';
-import { RouterProvider } from 'react-router-dom'
+import { memo } from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/footer';
 
 const App = () => {
   return (
-    <StrictMode>
-      <RouterProvider router={routes} />
-    </StrictMode>
+    <>
+      <Navbar />
+      <Outlet />
+      <Footer />
+    </>
   );
 };
 
