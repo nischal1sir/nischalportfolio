@@ -34,7 +34,7 @@ export default function About() {
   const stats = [
     { number: 15, suffix: '+', label: 'Projects Built' },
     { number: 5, suffix: '+', label: 'Technologies' },
-    { number: "20", suffix: '+', label: 'Happy Clients' },
+    { number: 20, suffix: '+', label: 'Happy Clients' },
     { number: 0, suffix: '', label: 'Sleep Hours' },
   ];
 
