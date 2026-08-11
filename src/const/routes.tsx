@@ -4,7 +4,9 @@ import LandingPage from "../pages/landingPage";
 import TechStack from "../pages/techStack";   
 import Resume from "../pages/resume";
 import About from "../pages/aboutMe";
-// import Connect from "../pages/Connect";
+import Connect from "../pages/Connect";
+import Projects from "../pages/projects";
+import Experiences from "../pages/experiences";
 
 const routes = createHashRouter([
   {
@@ -18,7 +20,13 @@ const routes = createHashRouter([
         path:"about",element:<About/>
       },
       {
-        // path:"connect",element:<Connect/>
+        path:"connect",element:<Connect/>
+      },
+      {
+        path:"projects",element:<Projects/>
+      },
+      {
+        path:"experiences",element:<Experiences/>
       },
     ]
   }
