@@ -1,8 +1,10 @@
 import { createHashRouter } from "react-router-dom";
 import App from "../App";
 import LandingPage from "../pages/landingPage";
-import TechStack from "../pages/techStack";   // ← match exact file name
+import TechStack from "../pages/techStack";   
 import Resume from "../pages/resume";
+import About from "../pages/aboutMe";
+// import Connect from "../pages/Connect";
 
 const routes = createHashRouter([
   {
@@ -12,6 +14,12 @@ const routes = createHashRouter([
       { index: true, element: <LandingPage /> },
       { path: "tech", element: <TechStack /> },
       { path: "resume", element: <Resume /> },
+      {
+        path:"about",element:<About/>
+      },
+      {
+        // path:"connect",element:<Connect/>
+      },
     ]
   }
 ]);
