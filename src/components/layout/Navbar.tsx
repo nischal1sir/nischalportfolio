@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const navLinks = [
-  { label: 'About', href: '#/about' },
-  { label: 'Projects', href: '#/projects' },
-  { label: 'Tech', href: '#/tech' },
-  { label: 'Exp', href: '#/experience' },
+  { label: 'About', to: '/about' },
+  { label: 'Projects', to: '/projects' },
+  { label: 'Tech', to: '/tech' },
+  { label: 'Exp', to: '/experience' },
 ];
 
 export default function Navbar() {
@@ -18,37 +19,37 @@ export default function Navbar() {
       `}</style>
 
       {/* Main Navbar */}
-      <nav className="font-poppins relative z-500 flex items-center justify-between px-5 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 text-[11px] sm:text-[12px] md:text-[13px] tracking-[0.08em] uppercase text-[#111]">
+      <nav className="font-poppins relative z-50 flex items-center justify-between px-5 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 text-[11px] sm:text-[12px] md:text-[13px] tracking-[0.08em] uppercase text-[#111]">
         
         {/* Logo */}
-        <a href="#/" className="font-semibold hover:opacity-60 transition-opacity duration-300">
+        <Link to="/" className="font-semibold hover:opacity-60 transition-opacity duration-300">
           Nischal Rai'
-        </a>
+        </Link>
 
         {/* Desktop Center Links */}
         <div className="hidden sm:flex items-center gap-6 md:gap-10 lg:gap-12">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.label}
-              href={link.href}
+              to={link.to}
               className="font-medium hover:opacity-60 transition-opacity duration-300"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
 
         {/* Desktop Right */}
         <div className="hidden sm:flex items-center gap-4 md:gap-6">
-          <a href="#/connect" className="font-medium hover:opacity-60 transition-opacity duration-300">
+          <Link to="/connect" className="font-medium hover:opacity-60 transition-opacity duration-300">
             Connect
-          </a>
-          <a
-            href="#/resume"
+          </Link>
+          <Link
+            to="/resume"
             className="font-medium border border-[#111] px-3 py-1.5 md:px-4 md:py-2 hover:bg-[#111] hover:text-white transition-all duration-300"
           >
             Resume
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Hamburger */}
@@ -70,29 +71,29 @@ export default function Navbar() {
         }`}
       >
         {navLinks.map((link) => (
-          <a
+          <Link
             key={link.label}
-            href={link.href}
+            to={link.to}
             onClick={() => setMenuOpen(false)}
             className="text-[18px] tracking-[0.1em] uppercase font-medium hover:opacity-60 transition-opacity"
           >
             {link.label}
-          </a>
+          </Link>
         ))}
-        <a
-          href="#/connect"
+        <Link
+          to="/connect"
           onClick={() => setMenuOpen(false)}
           className="text-[18px] tracking-[0.1em] uppercase font-medium hover:opacity-60 transition-opacity"
         >
           Connect
-        </a>
-        <a
-          href="#/resume"
+        </Link>
+        <Link
+          to="/resume"
           onClick={() => setMenuOpen(false)}
           className="mt-4 font-medium border border-[#111] px-6 py-2.5 text-[14px] tracking-[0.1em] uppercase hover:bg-[#111] hover:text-white transition-all duration-300"
         >
           Resume
-        </a>
+        </Link>
       </div>
     </>
   );
