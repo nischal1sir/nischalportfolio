@@ -48,18 +48,17 @@ const icons: Record<string, React.ReactElement> = {
     </svg>
   ),
   mail: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
       <polyline points="22,6 12,13 2,6" />
     </svg>
   ),
   'file-text': (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
       <polyline points="14 2 14 8 20 8" />
       <line x1="16" y1="13" x2="8" y2="13" />
       <line x1="16" y1="17" x2="8" y2="17" />
-      <polyline points="10 9 9 9 8 9" />
     </svg>
   ),
   instagram: (
@@ -70,7 +69,7 @@ const icons: Record<string, React.ReactElement> = {
     </svg>
   ),
   x: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
   ),
@@ -96,7 +95,7 @@ export default function Sidebar() {
       {!mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-60 p-2 bg-white border border-[#ebebeb] rounded-lg shadow-[0px_2px_2px_#0000000a,0px_8px_8px_-8px_#0000000a,0_0_0_1px_#00000014_inset]"
+          className="lg:hidden fixed top-4 left-4 z-60 p-2 bg-white border border-[#ebebeb] rounded-lg"
           aria-label="Open menu"
           aria-expanded="false"
         >
@@ -115,16 +114,24 @@ export default function Sidebar() {
         style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
       >
         {/* Profile Section */}
-        <div className="flex flex-col items-center pt-6 pb-4 px-4 border-b border-[#ebebeb]">
+        <div className="flex flex-col items-center pt-6 pb-5 px-4 border-b border-[#ebebeb]">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#ebebeb] shadow-sm mb-3">
             <img src={photo} alt="Nischal Rai" className="w-full h-full object-cover" />
           </div>
-          <p className="font-semibold text-[13px] tracking-[0.05em] uppercase text-[#171717]">Nischal Rai</p>
-          <p className="text-[11px] text-[#888888] mt-0.5">Developer / Designer</p>
+          <p className="font-semibold text-[14px] tracking-[0.02em] text-[#171717] leading-tight">Nischal Rai</p>
+          <p className="text-[10px] text-[#888888] mt-1 tracking-[0.05em]">Developer / Designer</p>
+          <Link
+            to="/resume"
+            onClick={() => setMobileOpen(false)}
+            className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#171717] text-white text-[10px] font-medium tracking-[0.1em] uppercase hover:opacity-80 transition-opacity"
+          >
+            <span className="flex-shrink-0">{icons['file-text']}</span>
+            <span>Resume</span>
+          </Link>
         </div>
 
         {/* Main navigation links */}
-        <nav className="py-4 px-3 space-y-1">
+        <nav className="py-3 px-3 space-y-1">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.to;
             return (
@@ -149,29 +156,8 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Social media icons */}
-        <div className="px-4 py-4 border-t border-[#ebebeb]">
-          <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#888888] mb-3 text-center">
-            Social Media
-          </p>
-          <div className="flex items-center justify-center gap-2">
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.label}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-[#ebebeb] text-[#888888] hover:bg-[#171717] hover:text-white hover:border-[#171717] transition-all duration-200"
-              >
-                {icons[social.icon]}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Connect + Resume in natural flow */}
-        <div className="px-3 pb-4 space-y-2">
+        {/* Let's Talk + Social media icons */}
+        <div className="px-3 pb-4 pt-2">
           <Link
             to="/connect"
             onClick={() => setMobileOpen(false)}
@@ -179,17 +165,23 @@ export default function Sidebar() {
             style={{ fontWeight: 500, letterSpacing: '0.05em' }}
           >
             <span className="flex-shrink-0 text-[#888888]">{icons.mail}</span>
-            <span>Connect</span>
+            <span>Let&rsquo;s Talk</span>
           </Link>
-          <Link
-            to="/resume"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[12px] font-medium bg-[#171717] text-white hover:opacity-80 transition-all duration-200"
-            style={{ fontWeight: 500, letterSpacing: '0.05em' }}
-          >
-            <span className="flex-shrink-0 text-white">{icons['file-text']}</span>
-            <span>Resume</span>
-          </Link>
+
+          <div className="flex items-center justify-center gap-2 mt-3">
+            {socialLinks.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.label}
+                className="w-7 h-7 flex items-center justify-center rounded-full border border-[#ebebeb] text-[#888888] hover:bg-[#171717] hover:text-white hover:border-[#171717] transition-all duration-200"
+              >
+                {icons[social.icon]}
+              </a>
+            ))}
+          </div>
         </div>
       </aside>
 
