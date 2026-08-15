@@ -1,14 +1,16 @@
 import { memo } from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
+import Sidebar from './components/layout/Sidebar';
 import Footer from './components/layout/footer';
 
 const App = () => {
   return (
     <>
-      <Navbar />
-      <Outlet />
-      <Footer />
+      <Sidebar />
+      <div className="lg:ml-[200px] min-h-screen py-6">
+        <Outlet />
+        <Footer />
+      </div>
     </>
   );
 };
