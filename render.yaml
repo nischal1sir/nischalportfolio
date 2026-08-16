@@ -1,0 +1,32 @@
+# Render Blueprint — deploys the backend as a Web Service.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy:
+#   1. Push this repo to GitHub.
+#   2. In Render, choose "New" -> "Blueprint" and select this repo.
+#   3. Set the environment variables below in the Render dashboard
+#      (or via a Env Group). Do NOT commit real keys.
+#
+# After your first deploy, set the public URL Render gives you
+# (e.g. https://portfolio-backend-xxxx.onrender.com) as VITE_API_URL
+# in your Vercel project, and add your Vercel frontend URL to CORS_ALLOWED
+# below (or update ALLOWED_ORIGINS in backend/server.ts).
+
+services:
+  - type: web
+    name: portfolio-backend
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npx tsx server.ts
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
