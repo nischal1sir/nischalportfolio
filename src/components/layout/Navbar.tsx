@@ -1,100 +1,117 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-
-const navLinks = [
-  { label: 'About', to: '/about' },
-  { label: 'Projects', to: '/projects' },
-  { label: 'Tech', to: '/tech' },
-  { label: 'Exp', to: '/experience' },
-];
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { profile } from '../../data/profile';
+import { navLinks, contactNav } from '../../data/nav';
+import { socials } from '../../data/socials';
+import { socialIconLib, MenuIcon, XIcon, MailIcon, FileTextIcon } from '../ui/Icon';
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
+  const isActive = (to: string) =>
+    to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        .font-poppins { font-family: 'Poppins', sans-serif; }
-      `}</style>
-
-      {/* Main Navbar */}
-      <nav className="font-poppins relative z-50 flex items-center justify-between px-5 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 text-[11px] sm:text-[12px] md:text-[13px] tracking-[0.08em] uppercase text-[#111]">
-        
-        {/* Logo */}
-        <Link to="/" className="font-semibold hover:opacity-60 transition-opacity duration-300">
-          Nischal Rai'
+      <header className="lg:hidden sticky top-0 z-[60] flex items-center justify-between px-4 h-14 bg-[#fafafa]/90 backdrop-blur border-b border-[#ebebeb]">
+        <Link to="/" className="font-semibold text-[14px] tracking-[-0.01em] text-[#171717]">
+          {profile.name}
+          <span className="text-[#0070f3]">.</span>
         </Link>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-[#ebebeb] bg-white text-[#171717]"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+        >
+          {open ? <XIcon size={18} /> : <MenuIcon size={18} />}
+        </button>
+      </header>
 
-        {/* Desktop Center Links */}
-        <div className="hidden sm:flex items-center gap-6 md:gap-10 lg:gap-12">
+      <div
+        id="mobile-nav"
+        className={`lg:hidden fixed inset-0 top-14 z-50 bg-[#fafafa] transition-all duration-300 ${
+          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        aria-hidden={!open}
+      >
+        <nav className="flex flex-col gap-1 p-4 pt-6">
           {navLinks.map((link) => (
             <Link
-              key={link.label}
+              key={link.to}
               to={link.to}
-              className="font-medium hover:opacity-60 transition-opacity duration-300"
+              className={`flex items-center justify-between py-3 px-4 rounded-lg text-[16px] font-medium transition-colors ${
+                isActive(link.to)
+                  ? 'bg-[#171717] text-white'
+                  : 'text-[#171717] hover:bg-[#ebebeb]'
+              }`}
             >
               {link.label}
             </Link>
           ))}
-        </div>
-
-        {/* Desktop Right */}
-        <div className="hidden sm:flex items-center gap-4 md:gap-6">
-          <Link to="/connect" className="font-medium hover:opacity-60 transition-opacity duration-300">
-            Connect
-          </Link>
           <Link
-            to="/resume"
-            className="font-medium border border-[#111] px-3 py-1.5 md:px-4 md:py-2 hover:bg-[#111] hover:text-white transition-all duration-300"
+            to={contactNav.to}
+            className={`flex items-center justify-between py-3 px-4 rounded-lg text-[16px] font-medium transition-colors ${
+              isActive(contactNav.to)
+                ? 'bg-[#171717] text-white'
+                : 'text-[#171717] hover:bg-[#ebebeb]'
+            }`}
           >
-            Resume
+            {contactNav.label}
           </Link>
-        </div>
 
-        {/* Mobile Hamburger */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="sm:hidden flex flex-col gap-1.5 p-2"
-          aria-label="Toggle menu"
-        >
-          <span className={`w-5 h-[1.5px] bg-[#111] transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`} />
-          <span className={`w-5 h-[1.5px] bg-[#111] transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
-          <span className={`w-5 h-[1.5px] bg-[#111] transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`} />
-        </button>
-      </nav>
-
-      {/* Mobile Dropdown Menu */}
-      <div
-        className={`font-poppins sm:hidden fixed inset-0 z-40 bg-[#f4f4f4] flex flex-col items-center justify-center gap-8 transition-all duration-500 ${
-          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        {navLinks.map((link) => (
-          <Link
-            key={link.label}
-            to={link.to}
-            onClick={() => setMenuOpen(false)}
-            className="text-[18px] tracking-[0.1em] uppercase font-medium hover:opacity-60 transition-opacity"
-          >
-            {link.label}
-          </Link>
-        ))}
-        <Link
-          to="/connect"
-          onClick={() => setMenuOpen(false)}
-          className="text-[18px] tracking-[0.1em] uppercase font-medium hover:opacity-60 transition-opacity"
-        >
-          Connect
-        </Link>
-        <Link
-          to="/resume"
-          onClick={() => setMenuOpen(false)}
-          className="mt-4 font-medium border border-[#111] px-6 py-2.5 text-[14px] tracking-[0.1em] uppercase hover:bg-[#111] hover:text-white transition-all duration-300"
-        >
-          Resume
-        </Link>
+          <div className="mt-6 pt-6 border-t border-[#ebebeb]">
+            <Link
+              to="/resume"
+              className="inline-flex items-center gap-2 text-[14px] font-medium text-[#0070f3] px-2"
+            >
+              <FileTextIcon size={16} />
+              Download CV
+            </Link>
+            <p className="mt-4 px-2 text-[11px] uppercase tracking-[0.12em] text-[#888888]">
+              Find me online
+            </p>
+            <div className="flex items-center gap-2 mt-3 px-2">
+              {socials.map((s) => {
+                const Icon = socialIconLib[s.icon];
+                return (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#ebebeb] text-[#888888] hover:bg-[#171717] hover:text-white hover:border-[#171717] transition-colors"
+                  >
+                    {Icon ? <Icon size={16} /> : null}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
       </div>
+
+      <span className="sr-only">
+        <MailIcon size={20} />
+      </span>
     </>
   );
 }
