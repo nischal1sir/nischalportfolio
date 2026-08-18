@@ -62,7 +62,7 @@ export default function Home() {
     };
   }, []);
 
-  if (!ready) return <HomeSkeleton />;$0
+  if (!ready) return <HomeSkeleton />;
 
   return (
     <>
