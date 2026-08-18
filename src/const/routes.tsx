@@ -3,10 +3,10 @@ import App from '../App';
 import Home from '../pages/Home';
 import About from '../pages/About';
 import Skills from '../pages/Skills';
-import Projects from '../pages/Projects';
-import Experience from '../pages/Experience';
-import Contact from '../pages/Contact';
-import Resume from '../pages/Resume';
+import Projects from '../pages/Projects.tsx';
+import Experience from '../pages/Experience.tsx';
+import Contact from '../pages/Contact.tsx';
+import Resume from '../pages/Resume.tsx';
 
 const routes = createHashRouter([
   {

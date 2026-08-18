@@ -42,7 +42,6 @@ export default function Home() {
   const ready = useReady();
 
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
-  const [projectsLoading, setProjectsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,11 +50,9 @@ export default function Home() {
       .then((data) => {
         if (cancelled) return;
         setFeaturedProjects(data.slice(0, 3));
-        setProjectsLoading(false);
       })
       .catch(() => {
         if (cancelled) return;
-        setProjectsLoading(false);
       });
     return () => {
       cancelled = true;
