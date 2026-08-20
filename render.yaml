@@ -30,3 +30,17 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
+
+  - type: static
+    name: portfolio-frontend
+    plan: free
+    region: frankfurt
+    rootDir: .
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+      - key: VITE_API_URL
+        sync: false
