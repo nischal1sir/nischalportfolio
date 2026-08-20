@@ -25,7 +25,7 @@ services:
     autoDeploy: true
     envVars:
       - key: NODE_VERSION
-        value: 20.11.1
+        value: 22
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_KEY
@@ -55,7 +55,7 @@ services:
     autoDeploy: true
     envVars:
       - key: NODE_VERSION
-        value: 20.11.1
+        value: 22
       - key: VITE_API_URL
         sync: false
       - key: VITE_SUPABASE_URL

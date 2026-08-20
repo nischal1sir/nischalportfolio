@@ -14,11 +14,13 @@ export default function AdminProjects() {
   const [editForm, setEditForm] = useState<Partial<Project>>({});
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadProjects();
-  }, []);
+    if (isAuthenticated) {
+      loadProjects();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadProjects = async () => {
     try {

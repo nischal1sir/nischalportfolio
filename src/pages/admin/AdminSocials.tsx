@@ -18,11 +18,13 @@ export default function AdminSocials() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<SocialLink>>({});
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadSocials();
-  }, []);
+    if (isAuthenticated) {
+      loadSocials();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadSocials = async () => {
     try {

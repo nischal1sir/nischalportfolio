@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "main": "server.ts",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "tsx watch server.ts",
     "build": "echo 'No build step needed — using tsx runtime'",
@@ -15,13 +18,15 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "nodemailer": "^9.0.5",
-    "tsx": "^4.23.12"
+    "tsx": "^4.23.12",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.2.0",
     "@types/nodemailer": "^8.0.1",
+    "@types/ws": "^8.5.13",
     "typescript": "^7.0.2"
   }
 }

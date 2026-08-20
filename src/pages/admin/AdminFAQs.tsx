@@ -13,11 +13,13 @@ export default function AdminFAQs() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Faq>>({});
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadFaqs();
-  }, []);
+    if (isAuthenticated) {
+      loadFaqs();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadFaqs = async () => {
     try {

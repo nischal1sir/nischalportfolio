@@ -13,11 +13,13 @@ export default function AdminProfile() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadData();
-  }, []);
+    if (isAuthenticated) {
+      loadData();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadData = async () => {
     try {

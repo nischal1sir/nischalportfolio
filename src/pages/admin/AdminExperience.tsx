@@ -13,11 +13,13 @@ export default function AdminExperience() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Experience>>({});
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadExperiences();
-  }, []);
+    if (isAuthenticated) {
+      loadExperiences();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadExperiences = async () => {
     try {

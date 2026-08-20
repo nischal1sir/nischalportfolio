@@ -14,11 +14,13 @@ export default function AdminGallery() {
   const [editForm, setEditForm] = useState<Partial<GalleryImage>>({});
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadGallery();
-  }, []);
+    if (isAuthenticated) {
+      loadGallery();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadGallery = async () => {
     try {

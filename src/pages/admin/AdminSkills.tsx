@@ -15,11 +15,13 @@ export default function AdminSkills() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'skills' | 'learning' | 'exploring' | 'soft'>('skills');
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadData();
-  }, []);
+    if (isAuthenticated) {
+      loadData();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadData = async () => {
     try {

@@ -22,11 +22,13 @@ export default function AdminEducation() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Education>>({});
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadEducation();
-  }, []);
+    if (isAuthenticated) {
+      loadEducation();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadEducation = async () => {
     try {

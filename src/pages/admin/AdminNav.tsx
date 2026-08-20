@@ -21,11 +21,13 @@ export default function AdminNav() {
   const [editForm, setEditForm] = useState<Partial<NavLink>>({});
   const [editingContact, setEditingContact] = useState(false);
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadNavLinks();
-  }, []);
+    if (isAuthenticated) {
+      loadNavLinks();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadNavLinks = async () => {
     try {

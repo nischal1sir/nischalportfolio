@@ -19,11 +19,13 @@ export default function AdminServices() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Service>>({});
 
-  if (!isAuthenticated) return null;
-
   useEffect(() => {
-    loadServices();
-  }, []);
+    if (isAuthenticated) {
+      loadServices();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   const loadServices = async () => {
     try {
