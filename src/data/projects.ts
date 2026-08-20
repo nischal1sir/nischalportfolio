@@ -11,8 +11,18 @@ export interface ProjectData {
   technologies: string[];
   category: string;
   featured: boolean;
+  order_index?: number;
   created_at: string;
   updated_at: string;
+}
+
+export function toProject(data: ProjectData): Project {
+  return {
+    ...data,
+    github_url: data.github_url || null,
+    live_url: data.live_url || null,
+    order_index: data.order_index ?? 0,
+  };
 }
 
 export const projects: ProjectData[] = [
@@ -119,7 +129,3 @@ export const projects: ProjectData[] = [
     updated_at: '2024-11-18T00:00:00Z',
   },
 ];
-
-export function toProject(data: ProjectData): Project {
-  return data;
-}
