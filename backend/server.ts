@@ -4,6 +4,14 @@ import dotenv from 'dotenv';
 import projectsRouter from './routes/projects.js';
 import galleryRouter from './routes/gallery.js';
 import contactRouter from './routes/contact.js';
+import profileRouter from './routes/profile.js';
+import skillsRouter from './routes/skills.js';
+import experiencesRouter from './routes/experiences.js';
+import educationRouter from './routes/education.js';
+import servicesRouter from './routes/services.js';
+import socialsRouter from './routes/socials.js';
+import faqsRouter from './routes/faqs.js';
+import navRouter from './routes/nav.js';
 
 dotenv.config();
 
@@ -35,6 +43,14 @@ app.get('/api/health', (_req: Request, res: Response) => {
 app.use('/api/projects', projectsRouter);
 app.use('/api/gallery', galleryRouter);
 app.use('/api/contact', contactRouter);
+app.use('/api/profile', profileRouter);
+app.use('/api/skills', skillsRouter);
+app.use('/api/experiences', experiencesRouter);
+app.use('/api/education', educationRouter);
+app.use('/api/services', servicesRouter);
+app.use('/api/socials', socialsRouter);
+app.use('/api/faqs', faqsRouter);
+app.use('/api/nav', navRouter);
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);

@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { supabase } from '../config/supabase.js';
 import type { ContactInput } from '../types.js';
+import { sendContactEmail, isEmailConfigured } from '../services/email.js';
 
 const router = Router();
 
@@ -42,12 +43,13 @@ router.post('/', async (req: Request, res: Response, _next: NextFunction) => {
       });
     }
 
+    const createdAt = new Date().toISOString();
+
     const clean: ContactInput = {
       name: String(input.name).trim().slice(0, MAX.name),
       email: String(input.email).trim().slice(0, MAX.email),
       subject: String(input.subject).trim().slice(0, MAX.subject),
       message: String(input.message).trim().slice(0, MAX.message),
-      createdAt: input.createdAt || new Date().toISOString(),
     };
 
     const { error } = await supabase.from('contact_messages').insert({
@@ -55,7 +57,7 @@ router.post('/', async (req: Request, res: Response, _next: NextFunction) => {
       email: clean.email,
       subject: clean.subject,
       message: clean.message,
-      created_at: clean.createdAt,
+      created_at: createdAt,
     });
 
     if (error) {
@@ -65,12 +67,22 @@ router.post('/', async (req: Request, res: Response, _next: NextFunction) => {
       throw error;
     }
 
+    // Send email notification
+    if (isEmailConfigured()) {
+      const emailResult = await sendContactEmail(clean);
+      if (!emailResult.sent) {
+        console.warn('[contact] Email not sent:', emailResult.error);
+      }
+    } else {
+      console.warn('[contact] Email not configured - message saved to database only');
+    }
+
     return res.status(200).json({
       name: clean.name,
       email: clean.email,
       subject: clean.subject,
       message: clean.message,
-      createdAt: clean.createdAt,
+      createdAt: createdAt,
       _code: 200,
       _codeMessage: 'Message received.',
     });
