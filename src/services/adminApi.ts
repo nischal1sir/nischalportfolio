@@ -1,0 +1,611 @@
+import type {
+  Project, GalleryImage, Profile, PhilosophyItem, ProgressionItem,
+  Skill, SoftSkill, Experience, Education, Service, SocialLink, Faq, NavLink,
+} from '../types';
+import { supabase } from '../lib/supabase';
+
+async function handleResponse<T>(data: T | null, error: Error | null): Promise<T> {
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data as T;
+}
+
+// ============================================================================
+// PROFILE API
+// ============================================================================
+export const profileApi = {
+  async get(): Promise<Profile> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .limit(1)
+      .maybeSingle();
+    return handleResponse<Profile>(data, error);
+  },
+
+  async update(data: Partial<Profile>): Promise<Profile> {
+    const profileId = data.id || '00000000-0000-0000-0000-000000000001';
+    const { data: result, error } = await supabase
+      .from('profiles')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', profileId)
+      .select()
+      .single();
+    return handleResponse<Profile>(result, error);
+  },
+
+  async getPhilosophy(): Promise<PhilosophyItem[]> {
+    const { data, error } = await supabase
+      .from('philosophy_items')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<PhilosophyItem[]>(data || [], error);
+  },
+
+  async addPhilosophy(data: Partial<PhilosophyItem>): Promise<PhilosophyItem> {
+    const profileId = data.profile_id || '00000000-0000-0000-0000-000000000001';
+    const { data: result, error } = await supabase
+      .from('philosophy_items')
+      .insert({ ...data, profile_id: profileId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<PhilosophyItem>(result, error);
+  },
+
+  async updatePhilosophy(id: string, data: Partial<PhilosophyItem>): Promise<PhilosophyItem> {
+    const { data: result, error } = await supabase
+      .from('philosophy_items')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<PhilosophyItem>(result, error);
+  },
+
+  async deletePhilosophy(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('philosophy_items')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+
+  async getProgression(): Promise<ProgressionItem[]> {
+    const { data, error } = await supabase
+      .from('progression_items')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<ProgressionItem[]>(data || [], error);
+  },
+
+  async addProgression(data: Partial<ProgressionItem>): Promise<ProgressionItem> {
+    const profileId = data.profile_id || '00000000-0000-0000-0000-000000000001';
+    const { data: result, error } = await supabase
+      .from('progression_items')
+      .insert({ ...data, profile_id: profileId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<ProgressionItem>(result, error);
+  },
+
+  async updateProgression(id: string, data: Partial<ProgressionItem>): Promise<ProgressionItem> {
+    const { data: result, error } = await supabase
+      .from('progression_items')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<ProgressionItem>(result, error);
+  },
+
+  async deleteProgression(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('progression_items')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// PROJECTS API
+// ============================================================================
+export const projectsApi = {
+  async getAll(): Promise<Project[]> {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<Project[]>(data || [], error);
+  },
+
+  async getFeatured(): Promise<Project[]> {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('featured', true)
+      .order('order_index', { ascending: true });
+    return handleResponse<Project[]>(data || [], error);
+  },
+
+  async getById(id: string): Promise<Project | null> {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', id)
+      .single();
+    return handleResponse<Project | null>(data, error);
+  },
+
+  async create(data: Partial<Project>): Promise<Project> {
+    const { data: result, error } = await supabase
+      .from('projects')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<Project>(result, error);
+  },
+
+  async update(id: string, data: Partial<Project>): Promise<Project> {
+    const { data: result, error } = await supabase
+      .from('projects')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<Project>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// SKILLS API
+// ============================================================================
+export const skillsApi = {
+  async getAll(): Promise<Skill[]> {
+    const { data, error } = await supabase
+      .from('skills')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<Skill[]>(data || [], error);
+  },
+
+  async getSoft(): Promise<SoftSkill[]> {
+    const { data, error } = await supabase
+      .from('soft_skills')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<SoftSkill[]>(data || [], error);
+  },
+
+  async create(data: Partial<Skill>): Promise<Skill> {
+    const { data: result, error } = await supabase
+      .from('skills')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<Skill>(result, error);
+  },
+
+  async update(id: string, data: Partial<Skill>): Promise<Skill> {
+    const { data: result, error } = await supabase
+      .from('skills')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<Skill>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('skills')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+
+  async createSoft(data: Partial<SoftSkill>): Promise<SoftSkill> {
+    const { data: result, error } = await supabase
+      .from('soft_skills')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<SoftSkill>(result, error);
+  },
+
+  async updateSoft(id: string, data: Partial<SoftSkill>): Promise<SoftSkill> {
+    const { data: result, error } = await supabase
+      .from('soft_skills')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<SoftSkill>(result, error);
+  },
+
+  async removeSoft(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('soft_skills')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+
+  async getLearning(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('skills')
+      .select('name')
+      .eq('category', 'learning')
+      .order('order_index', { ascending: true });
+    if (error || !data) return [];
+    return data.map(d => d.name);
+  },
+
+  async getExploring(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('skills')
+      .select('name')
+      .eq('category', 'exploring')
+      .order('order_index', { ascending: true });
+    if (error || !data) return [];
+    return data.map(d => d.name);
+  },
+};
+
+// ============================================================================
+// EXPERIENCES API
+// ============================================================================
+export const experiencesApi = {
+  async getAll(): Promise<Experience[]> {
+    const { data, error } = await supabase
+      .from('experiences')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<Experience[]>(data || [], error);
+  },
+
+  async create(data: Partial<Experience>): Promise<Experience> {
+    const { data: result, error } = await supabase
+      .from('experiences')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<Experience>(result, error);
+  },
+
+  async update(id: string, data: Partial<Experience>): Promise<Experience> {
+    const { data: result, error } = await supabase
+      .from('experiences')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<Experience>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('experiences')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// EDUCATION API
+// ============================================================================
+export const educationApi = {
+  async getAll(): Promise<Education[]> {
+    const { data, error } = await supabase
+      .from('education')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<Education[]>(data || [], error);
+  },
+
+  async create(data: Partial<Education>): Promise<Education> {
+    const { data: result, error } = await supabase
+      .from('education')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<Education>(result, error);
+  },
+
+  async update(id: string, data: Partial<Education>): Promise<Education> {
+    const { data: result, error } = await supabase
+      .from('education')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<Education>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('education')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// SERVICES API
+// ============================================================================
+export const servicesApi = {
+  async getAll(): Promise<Service[]> {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<Service[]>(data || [], error);
+  },
+
+  async create(data: Partial<Service>): Promise<Service> {
+    const { data: result, error } = await supabase
+      .from('services')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<Service>(result, error);
+  },
+
+  async update(id: string, data: Partial<Service>): Promise<Service> {
+    const { data: result, error } = await supabase
+      .from('services')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<Service>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('services')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// SOCIALS API
+// ============================================================================
+export const socialsApi = {
+  async getAll(): Promise<SocialLink[]> {
+    const { data, error } = await supabase
+      .from('social_links')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<SocialLink[]>(data || [], error);
+  },
+
+  async create(data: Partial<SocialLink>): Promise<SocialLink> {
+    const { data: result, error } = await supabase
+      .from('social_links')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<SocialLink>(result, error);
+  },
+
+  async update(id: string, data: Partial<SocialLink>): Promise<SocialLink> {
+    const { data: result, error } = await supabase
+      .from('social_links')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<SocialLink>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('social_links')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// GALLERY API
+// ============================================================================
+export const galleryApi = {
+  async getAll(): Promise<GalleryImage[]> {
+    const { data, error } = await supabase
+      .from('gallery')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<GalleryImage[]>(data || [], error);
+  },
+
+  async getByCategory(category: string): Promise<GalleryImage[]> {
+    const { data, error } = await supabase
+      .from('gallery')
+      .select('*')
+      .eq('category', category)
+      .order('order_index', { ascending: true });
+    return handleResponse<GalleryImage[]>(data || [], error);
+  },
+
+  async getById(id: string): Promise<GalleryImage | null> {
+    const { data, error } = await supabase
+      .from('gallery')
+      .select('*')
+      .eq('id', id)
+      .single();
+    return handleResponse<GalleryImage | null>(data, error);
+  },
+
+  async create(data: Partial<GalleryImage>): Promise<GalleryImage> {
+    const { data: result, error } = await supabase
+      .from('gallery')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<GalleryImage>(result, error);
+  },
+
+  async update(id: string, data: Partial<GalleryImage>): Promise<GalleryImage> {
+    const { data: result, error } = await supabase
+      .from('gallery')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<GalleryImage>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('gallery')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// FAQs API
+// ============================================================================
+export const faqsApi = {
+  async getAll(): Promise<Faq[]> {
+    const { data, error } = await supabase
+      .from('faqs')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<Faq[]>(data || [], error);
+  },
+
+  async create(data: Partial<Faq>): Promise<Faq> {
+    const { data: result, error } = await supabase
+      .from('faqs')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<Faq>(result, error);
+  },
+
+  async update(id: string, data: Partial<Faq>): Promise<Faq> {
+    const { data: result, error } = await supabase
+      .from('faqs')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<Faq>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('faqs')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// NAVIGATION API
+// ============================================================================
+export const navApi = {
+  async getAll(): Promise<NavLink[]> {
+    const { data, error } = await supabase
+      .from('nav_links')
+      .select('*')
+      .order('order_index', { ascending: true });
+    return handleResponse<NavLink[]>(data || [], error);
+  },
+
+  async create(data: Partial<NavLink>): Promise<NavLink> {
+    const { data: result, error } = await supabase
+      .from('nav_links')
+      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    return handleResponse<NavLink>(result, error);
+  },
+
+  async update(id: string, data: Partial<NavLink>): Promise<NavLink> {
+    const { data: result, error } = await supabase
+      .from('nav_links')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return handleResponse<NavLink>(result, error);
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('nav_links')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+};
+
+// ============================================================================
+// LEARNING/EXPLORING (stored as simple string arrays in localStorage or separate tables)
+// ============================================================================
+export const learningApi = {
+  async getLearning(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('learning_items')
+      .select('name')
+      .order('order_index', { ascending: true });
+    return handleResponse<string[]>(data?.map(d => d.name) || [], error);
+  },
+
+  async getExploring(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('exploring_items')
+      .select('name')
+      .order('order_index', { ascending: true });
+    return handleResponse<string[]>(data?.map(d => d.name) || [], error);
+  },
+
+  async addLearning(name: string): Promise<void> {
+    const { error } = await supabase
+      .from('learning_items')
+      .insert({ name, created_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+  },
+
+  async removeLearning(name: string): Promise<void> {
+    const { error } = await supabase
+      .from('learning_items')
+      .delete()
+      .eq('name', name);
+    if (error) throw new Error(error.message);
+  },
+
+  async addExploring(name: string): Promise<void> {
+    const { error } = await supabase
+      .from('exploring_items')
+      .insert({ name, created_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+  },
+
+  async removeExploring(name: string): Promise<void> {
+    const { error } = await supabase
+      .from('exploring_items')
+      .delete()
+      .eq('name', name);
+    if (error) throw new Error(error.message);
+  },
+};
