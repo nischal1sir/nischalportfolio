@@ -1,0 +1,46 @@
+import express, { type Request, type Response, type NextFunction } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import projectsRouter from './routes/projects.js';
+import galleryRouter from './routes/gallery.js';
+import contactRouter from './routes/contact.js';
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://your-portfolio.vercel.app',
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+app.use(express.json());
+
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok' });
+});
+
+app.use('/api/projects', projectsRouter);
+app.use('/api/gallery', galleryRouter);
+app.use('/api/contact', contactRouter);
+
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err);
+  res.status(500).json({ error: 'Something went wrong' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
