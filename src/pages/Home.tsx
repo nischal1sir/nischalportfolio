@@ -16,7 +16,7 @@ import { services } from '../data/services';
 import { skillsByCategory, softSkills } from '../data/skills';
 import { currentlyLearning, exploring } from '../data/skills';
 import { experiences } from '../data/experience';
-import { projectsApi } from '../services/api';
+import { projectsApi, isProduction } from '../services/api';
 import type { Project } from '../types';
 import { ArrowRightIcon, DownloadIcon, MailIcon } from '../components/ui/Icon';
 import { usePageMeta } from '../hooks/usePageMeta';
@@ -42,6 +42,7 @@ export default function Home() {
   const ready = useReady();
 
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,8 +52,11 @@ export default function Home() {
         if (cancelled) return;
         setFeaturedProjects(data.slice(0, 3));
       })
-      .catch(() => {
+      .catch((_err) => {
         if (cancelled) return;
+        if (isProduction) {
+          setProjectsError('Unable to load featured projects.');
+        }
       });
     return () => {
       cancelled = true;
@@ -197,18 +201,33 @@ export default function Home() {
           />
         </Reveal>
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredProjects.map((p) => (
-            <ProjectCard key={p.id} project={p} />
-          ))}
-        </div>
-        <div className="mt-8">
-          <Link
-            to="/projects"
-            className="inline-flex items-center gap-2 text-[14px] font-medium text-[#0070f3] hover:text-[#0761d1] transition-colors"
-          >
-            View All Projects
-            <ArrowRightIcon size={16} />
-          </Link>
+          {projectsError ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-[14px] text-[#888888] mb-4">{projectsError}</p>
+              <Link
+                to="/projects"
+                className="inline-flex items-center gap-2 text-[14px] font-medium text-[#0070f3] hover:text-[#0761d1] transition-colors"
+              >
+                View All Projects
+                <ArrowRightIcon size={16} />
+              </Link>
+            </div>
+          ) : featuredProjects.length > 0 ? (
+            featuredProjects.map((p) => <ProjectCard key={p.id} project={p} />)
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-[14px] text-[#888888] mb-4">
+                No featured projects yet. Add projects with <code className="bg-[#f0f0f0] px-1.5 py-0.5 rounded text-[12px]">featured=true</code> in Supabase.
+              </p>
+              <Link
+                to="/projects"
+                className="inline-flex items-center gap-2 text-[14px] font-medium text-[#0070f3] hover:text-[#0761d1] transition-colors"
+              >
+                View All Projects
+                <ArrowRightIcon size={16} />
+              </Link>
+            </div>
+          )}
         </div>
       </PageSection>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { memo } from 'react';
 import type { Project } from '../types';
-import { projectsApi } from '../services/api';
+import { projectsApi, isProduction } from '../services/api';
 import { projects as fallbackProjects } from '../data/projects';
 import ProjectCard from '../components/ProjectCard';
 import { PageHero, PageSection } from '../components/ui/Page';
@@ -46,32 +46,27 @@ const Projects = () => {
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [status, setStatus] = useState<Status>('idle');
-  const [usingFallback, setUsingFallback] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       setStatus('loading');
+      setError(null);
       try {
         const data = await projectsApi.getAll();
         if (cancelled) return;
-        if (data.length === 0) {
-          setProjects(fallbackProjects);
-          setUsingFallback(true);
-          setStatus('success');
-        } else {
-          const same =
-            data.length === fallbackProjects.length &&
-            data.every((p) => fallbackProjects.some((f) => f.id === p.id));
-          setUsingFallback(same);
-          setProjects(data);
-          setStatus('success');
-        }
+        setProjects(data);
+        setStatus('success');
       } catch {
         if (cancelled) return;
-        setProjects(fallbackProjects);
-        setUsingFallback(true);
-        setStatus('success');
+        if (isProduction) {
+          setError('Unable to load projects. Please try again later.');
+          setStatus('error');
+        } else {
+          setProjects(fallbackProjects);
+          setStatus('success');
+        }
       }
     };
     load();
@@ -92,17 +87,11 @@ const Projects = () => {
         {status === 'loading' ? (
           <LoadingState />
         ) : status === 'error' ? (
-          <ErrorState onRetry={() => setStatus('idle')} />
+          <ErrorState onRetry={() => setStatus('idle')} error={error} />
         ) : projects.length === 0 ? (
           <EmptyState />
         ) : (
           <>
-            {usingFallback && (
-              <p className="mb-8 text-[12px] text-[#888888] bg-[#fffbeb] border border-[#fde68a] rounded-lg px-4 py-3 inline-flex items-center gap-2">
-                <FileText size={13} className="shrink-0" />
-                Showing local project data (couldn't reach the API server).
-              </p>
-            )}
             <div className="mb-10 flex flex-wrap gap-2">
               {Array.from(new Set(projects.map((p) => p.category))).map((category) => {
                 const Icon = iconForCategory(category);
@@ -151,12 +140,12 @@ function LoadingState() {
   );
 }
 
-function ErrorState({ onRetry }: { onRetry: () => void }) {
+function ErrorState({ onRetry, error }: { onRetry: () => void; error?: string | null }) {
   return (
     <div className="text-center py-16">
       <SectionHeading
         title="Couldn't load projects"
-        description="Something went wrong while fetching projects. You can retry, or the local data will be shown instead."
+        description={error || 'Something went wrong while fetching projects. You can retry to try again.'}
         align="center"
       />
       <button
@@ -174,7 +163,7 @@ function EmptyState() {
     <div className="text-center py-16">
       <SectionHeading
         title="No projects yet"
-        description="Projects are stored in a database. Add some from the admin panel to see them here."
+        description="Projects are stored in Supabase. Add projects from the Supabase dashboard to see them here."
         align="center"
       />
     </div>
