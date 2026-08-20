@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ShinyText from '../components/ShinyText';
 import CardArc7 from '../components/CardArc7';
@@ -11,13 +10,7 @@ import { Progression } from '../components/ui/Progression';
 import { FaqBlock } from '../components/ui/Faq';
 import ProjectCard from '../components/ProjectCard';
 import { Skeleton, TextLines } from '../components/ui/Skeleton';
-import { profile } from '../data/profile';
-import { services } from '../data/services';
-import { skillsByCategory, softSkills } from '../data/skills';
-import { currentlyLearning, exploring } from '../data/skills';
-import { experiences } from '../data/experience';
-import { projectsApi, isProduction } from '../services/api';
-import type { Project } from '../types';
+import { useProfile, useProjects, useServices, useExperiences, useSkills, useSoftSkills, useLearningItems, useExploringItems } from '../hooks/usePortfolioData';
 import { ArrowRightIcon, DownloadIcon, MailIcon } from '../components/ui/Icon';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useReady } from '../hooks/useReady';
@@ -32,6 +25,10 @@ import photo6 from '../assets/image6.png';
 
 const heroImages = [photo, photo1, photo2, photo3, photo4, photo5, photo6];
 
+function skillsByCategory(category: string, skills: { name: string; category: string }[]) {
+  return skills.filter(s => s.category === category);
+}
+
 export default function Home() {
   usePageMeta({
     title: 'Nischal Rai | Developer',
@@ -41,29 +38,37 @@ export default function Home() {
 
   const ready = useReady();
 
-  const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
-  const [projectsError, setProjectsError] = useState<string | null>(null);
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
+  const { projects: featuredProjects, loading: projectsLoading, error: projectsError } = useProjects(true);
+  const { services, loading: servicesLoading } = useServices();
+  const { skills, loading: skillsLoading } = useSkills();
+  const { skills: softSkills, loading: softSkillsLoading } = useSoftSkills();
+  const { items: learningItems, loading: learningLoading } = useLearningItems();
+  const { items: exploringItems, loading: exploringLoading } = useExploringItems();
+  const { experiences, loading: experiencesLoading } = useExperiences();
 
-  useEffect(() => {
-    let cancelled = false;
-    projectsApi
-      .getFeatured()
-      .then((data) => {
-        if (cancelled) return;
-        setFeaturedProjects(data.slice(0, 3));
-      })
-      .catch((_err) => {
-        if (cancelled) return;
-        if (isProduction) {
-          setProjectsError('Unable to load featured projects.');
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const allLoading = profileLoading || projectsLoading || servicesLoading || skillsLoading || softSkillsLoading || learningLoading || exploringLoading || experiencesLoading;
 
   if (!ready) return <HomeSkeleton />;
+
+  if (allLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (profileError || !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Unable to load profile</h1>
+          <p className="text-gray-500">Please check your Supabase configuration.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -82,10 +87,10 @@ export default function Home() {
             speed={3}
           />
           <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-            {profile.taglines.map((t, i) => (
+            {(profile.taglines || []).map((t, i) => (
               <span key={t} className="flex items-center gap-3">
                 <span className="text-[16px] sm:text-[18px] font-medium text-[#171717]">{t}</span>
-                {i < profile.taglines.length - 1 && (
+                {i < (profile.taglines || []).length - 1 && (
                   <span className="text-[#a1a1a1]">•</span>
                 )}
               </span>
@@ -110,7 +115,7 @@ export default function Home() {
               Let's Talk
             </LinkButton>
             <a
-              href={profile.resumeUrl}
+              href={profile.resume_url || '/resume.pdf'}
               download="Nischal_Rai_Resume.pdf"
               className="inline-flex items-center gap-2 text-[14px] font-medium text-[#0070f3] hover:text-[#0761d1] transition-colors px-2"
             >
@@ -152,7 +157,7 @@ export default function Home() {
                 Languages
               </h3>
               <div className="flex flex-wrap gap-2">
-                {skillsByCategory('language').map((s) => (
+                {skillsByCategory('language', skills).map((s) => (
                   <TechTag key={s.name} name={s.name} />
                 ))}
               </div>
@@ -164,7 +169,7 @@ export default function Home() {
                 Frontend
               </h3>
               <div className="flex flex-wrap gap-2">
-                {skillsByCategory('frontend')
+                {skillsByCategory('frontend', skills)
                   .slice(0, 2)
                   .map((s) => (
                     <TechTag key={s.name} name={s.name} />
@@ -262,7 +267,7 @@ export default function Home() {
           />
         </Reveal>
         <div className="mt-6 flex flex-wrap gap-3">
-          {currentlyLearning.map((s) => (
+          {learningItems.map((s) => (
             <TechTag key={s} name={s} accent />
           ))}
         </div>
@@ -278,7 +283,7 @@ export default function Home() {
           />
         </Reveal>
         <div className="mt-6 flex flex-wrap gap-2.5">
-          {exploring.map((s) => (
+          {exploringItems.map((s) => (
             <TechTag key={s} name={s} />
           ))}
         </div>
@@ -309,9 +314,9 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="text-[12px] text-[#888888] mb-2">
-                  {exp.companyUrl ? (
+                  {exp.company_url ? (
                     <a
-                      href={exp.companyUrl}
+                      href={exp.company_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#0070f3] hover:text-[#0761d1] font-medium"
@@ -438,7 +443,7 @@ function HomeSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto space-y-8">
         <TextLines lines={2} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {services.map((_, i) => (
+          {[0, 1, 2].map((i) => (
             <Skeleton key={i} height={280} width="100%" />
           ))}
         </div>
@@ -452,7 +457,7 @@ function HomeSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto bg-[#fafafa] border-y border-[#ebebeb] space-y-6">
         <TextLines lines={2} />
         <div className="flex flex-wrap gap-3">
-          {currentlyLearning.map((_, i) => (
+          {[0, 1, 2].map((i) => (
             <Skeleton key={i} height={28} width={100} rounded="rounded-full" />
           ))}
         </div>
@@ -461,7 +466,7 @@ function HomeSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto space-y-6">
         <TextLines lines={2} />
         <div className="flex flex-wrap gap-2.5">
-          {exploring.map((_, i) => (
+          {[0, 1, 2].map((i) => (
             <Skeleton key={i} height={28} width={80} rounded="rounded-full" />
           ))}
         </div>
@@ -470,7 +475,7 @@ function HomeSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto bg-[#fafafa] border-y border-[#ebebeb] space-y-8">
         <TextLines lines={2} />
         <div className="space-y-6">
-          {experiences.map((_, i) => (
+          {[0, 1].map((i) => (
             <Skeleton key={i} height={180} width="100%" />
           ))}
         </div>

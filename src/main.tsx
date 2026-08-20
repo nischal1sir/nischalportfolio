@@ -4,9 +4,10 @@ import './index.css'
 
 import { RouterProvider } from 'react-router-dom'
 import routes from './const/routes.tsx'
+import { AdminProvider } from './pages/admin/AdminContext'
 
 createRoot(document.getElementById('root')!).render(
- 
-<RouterProvider router={routes}/>
- 
+  <AdminProvider>
+    <RouterProvider router={routes} />
+  </AdminProvider>
 )

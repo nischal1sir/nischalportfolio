@@ -1,4 +1,3 @@
-import { skillCategories, skillsByCategory, type SkillCategory } from '../../data/skills';
 import Reveal from '../Reveal';
 import { TechTag } from './Section';
 
@@ -8,7 +7,7 @@ export function SkillGroup({
   reveal = true,
 }: {
   label: string;
-  items: { name: string }[];
+  items: { name: string; category: string }[];
   reveal?: boolean;
 }) {
   const body = (
@@ -31,15 +30,31 @@ export function SkillGroup({
   return reveal ? <Reveal>{body}</Reveal> : body;
 }
 
+const skillCategories = [
+  { key: 'language', label: 'Languages' },
+  { key: 'frontend', label: 'Frontend' },
+  { key: 'backend', label: 'Backend' },
+  { key: 'database', label: 'Database' },
+  { key: 'tools', label: 'Tools' },
+  { key: 'learning', label: 'Learning' },
+  { key: 'exploring', label: 'Exploring' },
+];
+
+function skillsByCategory(category: string, skills: { name: string; category: string }[]) {
+  return skills.filter(s => s.category === category);
+}
+
 export function SkillCategories({
+  skills,
   limit,
 }: {
+  skills: { name: string; category: string }[];
   limit?: number;
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-      {skillCategories.map((group: { key: SkillCategory; label: string }) => {
-        const items = limit ? skillsByCategory(group.key).slice(0, limit) : skillsByCategory(group.key);
+      {skillCategories.map((group) => {
+        const items = limit ? skillsByCategory(group.key, skills).slice(0, limit) : skillsByCategory(group.key, skills);
         return <SkillGroup key={group.key} label={group.label} items={items} />;
       })}
     </div>

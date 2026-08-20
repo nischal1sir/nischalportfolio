@@ -3,11 +3,8 @@ import Reveal from '../components/Reveal';
 import { SectionHeading, ReadMoreLink, TechTag } from '../components/ui/Section';
 import { LinkButton } from '../components/ui/Button';
 import { Skeleton, TextLines } from '../components/ui/Skeleton';
-import { philosophy, profile } from '../data/profile';
-import { education } from '../data/education';
-import { experiences } from '../data/experience';
-import { currentlyLearning, exploring } from '../data/skills';
-import { philosophyIconLib, ArrowRightIcon } from '../components/ui/Icon';
+import { useProfile, usePhilosophy, useEducation, useExperiences, useLearningItems, useExploringItems } from '../hooks/usePortfolioData';
+import { ArrowRightIcon } from '../components/ui/Icon';
 import { Dot, MapPin, Calendar } from 'lucide-react';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useReady } from '../hooks/useReady';
@@ -32,7 +29,35 @@ export default function About() {
   });
 
   const ready = useReady();
+  const { profile, loading: profileLoading } = useProfile();
+  const { items: philosophyItems, loading: philosophyLoading } = usePhilosophy();
+  const { education, loading: educationLoading } = useEducation();
+  const { experiences, loading: experiencesLoading } = useExperiences();
+  const { items: learningItems, loading: learningLoading } = useLearningItems();
+  const { items: exploringItems, loading: exploringLoading } = useExploringItems();
+
+  const allLoading = profileLoading || philosophyLoading || educationLoading || experiencesLoading || learningLoading || exploringLoading;
+
   if (!ready) return <AboutSkeleton />;
+
+  if (allLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Unable to load profile</h1>
+          <p className="text-gray-500">Please check your Supabase configuration.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -77,13 +102,12 @@ export default function About() {
           />
         </Reveal>
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {philosophy.map((p, i) => {
-            const Icon = philosophyIconLib[p.icon] ?? philosophyIconLib.hammer;
+          {philosophyItems.map((p, i) => {
             return (
-              <Reveal key={p.title} delay={i * 70}>
+              <Reveal key={p.id} delay={i * 70}>
                 <article className="group h-full p-6 bg-white border border-[#ebebeb] rounded-lg transition-all duration-300 hover:border-[#a1a1a1] hover:-translate-y-0.5">
                   <span className="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-[#f5f5f5] text-[#171717] mb-4 transition-colors duration-300 group-hover:bg-[#171717] group-hover:text-white">
-                    <Icon size={22} />
+                    <span className="text-2xl">{p.icon}</span>
                   </span>
                   <h3 className="text-[16px] font-semibold text-[#171717] mb-2">{p.title}</h3>
                   <p className="text-[14px] leading-relaxed text-[#4d4d4d]">{p.description}</p>
@@ -101,14 +125,13 @@ export default function About() {
         </Reveal>
         <div className="mt-8 relative pl-6 sm:pl-8 border-l border-[#ebebeb] space-y-8">
           {education.map((item) => {
-            const Icon = item.icon;
             return (
               <Reveal key={item.id}>
                 <div className="relative">
                   <span className="absolute -left-[30px] sm:-left-[38px] top-1.5 w-3 h-3 rounded-full bg-[#0070f3] ring-4 ring-white" />
                   <div className="flex items-center gap-3 mb-2">
                     <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-[#f1f5ff] text-[#0761d1] shrink-0">
-                      <Icon size={18} />
+                      <span className="text-xl">{item.icon}</span>
                     </span>
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <h3 className="text-[17px] font-semibold text-[#171717]">{item.institution}</h3>
@@ -198,10 +221,10 @@ export default function About() {
           />
         </Reveal>
         <div className="mt-6 flex flex-wrap gap-3">
-          {currentlyLearning.map((s) => (
+          {learningItems.map((s) => (
             <TechTag key={s} name={s} accent />
           ))}
-          {exploring.map((s) => (
+          {exploringItems.map((s) => (
             <TechTag key={s} name={s} />
           ))}
         </div>
@@ -259,7 +282,7 @@ function AboutSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-12 max-w-6xl mx-auto bg-[#fafafa] border-y border-[#ebebeb] space-y-8">
         <TextLines lines={2} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {philosophy.map((_, i) => (
+          {[0, 1].map((i) => (
             <Skeleton key={i} height={220} width="100%" />
           ))}
         </div>
@@ -268,7 +291,7 @@ function AboutSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-12 max-w-6xl mx-auto space-y-8">
         <TextLines lines={2} />
         <div className="relative pl-6 sm:pl-8 border-l border-[#ebebeb] space-y-8">
-          {education.map((_, i) => (
+          {[0, 1].map((i) => (
             <Skeleton key={i} height={160} width="100%" />
           ))}
         </div>
@@ -277,7 +300,7 @@ function AboutSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-12 max-w-6xl mx-auto bg-[#fafafa] border-y border-[#ebebeb] space-y-8">
         <TextLines lines={2} />
         <div className="space-y-6">
-          {experiences.map((_, i) => (
+          {[0, 1].map((i) => (
             <Skeleton key={i} height={220} width="100%" />
           ))}
         </div>
@@ -286,13 +309,8 @@ function AboutSkeleton() {
       <section className="px-5 sm:px-8 md:px-12 py-12 max-w-6xl mx-auto space-y-6">
         <TextLines lines={2} />
         <div className="flex flex-wrap gap-3">
-          {currentlyLearning.map((_, i) => (
+          {[0, 1, 2].map((i) => (
             <Skeleton key={i} height={28} width={100} rounded="rounded-full" />
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-2.5">
-          {exploring.map((_, i) => (
-            <Skeleton key={i} height={28} width={80} rounded="rounded-full" />
           ))}
         </div>
       </section>

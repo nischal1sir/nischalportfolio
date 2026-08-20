@@ -77,9 +77,17 @@ export default function Footer() {
           <p className="text-[11px] tracking-[0.05em] text-[#888888]">
             © {year} {profile.name}. All rights reserved.
           </p>
-          <p className="text-[11px] tracking-[0.05em] text-[#888888]">
-            Built with React, TypeScript & Tailwind CSS.
-          </p>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/admin"
+              className="text-[11px] tracking-[0.05em] text-[#888888] hover:text-[#0070f3] transition-colors"
+            >
+              Admin Login
+            </Link>
+            <p className="text-[11px] tracking-[0.05em] text-[#888888]">
+              Built with React, TypeScript, Tailwind CSS.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

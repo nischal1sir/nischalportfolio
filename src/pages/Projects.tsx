@@ -1,40 +1,11 @@
-import { useEffect, useState } from 'react';
 import { memo } from 'react';
-import type { Project } from '../types';
-import { projectsApi, isProduction } from '../services/api';
-import { projects as fallbackProjects } from '../data/projects';
+import { useProjects } from '../hooks/usePortfolioData';
 import ProjectCard from '../components/ProjectCard';
 import { PageHero, PageSection } from '../components/ui/Page';
 import { SectionHeading } from '../components/ui/Section';
 import { Skeleton } from '../components/ui/Skeleton';
-import {
-  Folder,
-  Globe,
-  LayoutTemplate,
-  Server,
-  ShoppingCart,
-  MessageSquare,
-  FileText,
-} from 'lucide-react';
 import { usePageMeta } from '../hooks/usePageMeta';
-
-const categoryIcon: Record<string, typeof Folder> = {
-  'Full-Stack': Server,
-  'Web App': LayoutTemplate,
-  Frontend: Globe,
-  Template: FileText,
-  ECommerce: ShoppingCart,
-  Chat: MessageSquare,
-};
-
-function iconForCategory(category: string) {
-  const key = Object.keys(categoryIcon).find(
-    (k) => category.toLowerCase().includes(k.toLowerCase()),
-  );
-  return key ? categoryIcon[key] : Folder;
-}
-
-type Status = 'idle' | 'loading' | 'success' | 'error';
+import { useReady } from '../hooks/useReady';
 
 const Projects = () => {
   usePageMeta({
@@ -44,129 +15,138 @@ const Projects = () => {
     path: '/projects',
   });
 
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [status, setStatus] = useState<Status>('idle');
-  const [error, setError] = useState<string | null>(null);
+  const ready = useReady();
+  const { projects, loading, error } = useProjects(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setStatus('loading');
-      setError(null);
-      try {
-        const data = await projectsApi.getAll();
-        if (cancelled) return;
-        setProjects(data);
-        setStatus('success');
-      } catch {
-        if (cancelled) return;
-        if (isProduction) {
-          setError('Unable to load projects. Please try again later.');
-          setStatus('error');
-        } else {
-          setProjects(fallbackProjects);
-          setStatus('success');
-        }
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  if (!ready) return <ProjectsSkeleton />;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageSection className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto">
+        <div className="text-center py-12">
+          <p className="text-[14px] text-[#888888] mb-4">{error}</p>
+        </div>
+      </PageSection>
+    );
+  }
+
+  // Get unique categories from projects
+  const categories = [...new Set(projects.map(p => p.category))].sort();
 
   return (
     <>
       <PageHero
-        eyebrow="Projects"
-        title="Things I've built"
-        intro="A collection of full-stack apps, frontend work and side projects. Each one taught me something new about writing clean, maintainable code."
+        eyebrow="Work"
+        title="Projects"
+        intro="A collection of projects I've built — from full-stack applications to frontend experiments. Each one taught me something new."
       />
 
-      <PageSection className="pb-20">
-        {status === 'loading' ? (
-          <LoadingState />
-        ) : status === 'error' ? (
-          <ErrorState onRetry={() => setStatus('idle')} error={error} />
-        ) : projects.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <>
-            <div className="mb-10 flex flex-wrap gap-2">
-              {Array.from(new Set(projects.map((p) => p.category))).map((category) => {
-                const Icon = iconForCategory(category);
-                return (
-                  <span
-                    key={category}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#ebebeb] bg-white text-[12px] font-medium text-[#4d4d4d]"
-                  >
-                    <Icon size={13} className="text-[#0070f3]" />
-                    {category}
-                  </span>
-                );
-              })}
+      <PageSection className="py-14 sm:py-16 max-w-6xl mx-auto">
+        <Reveal>
+          <SectionHeading
+            eyebrow="Filter"
+            title="Browse by category"
+          />
+        </Reveal>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <CategoryFilter
+            label="All"
+            active={true}
+            count={projects.length}
+          />
+          {categories.map((cat) => (
+            <CategoryFilter
+              key={cat}
+              label={cat}
+              active={false}
+              count={projects.filter(p => p.category === cat).length}
+            />
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection className="py-14 sm:py-16 max-w-6xl mx-auto">
+        <Reveal>
+          <SectionHeading
+            eyebrow="All projects"
+            title={`Showing ${projects.length} project${projects.length !== 1 ? 's' : ''}`}
+          />
+        </Reveal>
+
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.length > 0 ? (
+            projects.map((p) => <ProjectCard key={p.id} project={p} />)
+          ) : (
+            <div className="col-span-full text-center py-16">
+              <Skeleton height={40} width="200" className="mx-auto mb-4" />
+              <p className="text-[14px] text-[#888888]">
+                No projects yet. Add some in the admin panel!
+              </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-            </div>
-          </>
-        )}
+          )}
+        </div>
       </PageSection>
     </>
   );
 };
 
-function LoadingState() {
+// Helper component for category filter buttons
+function CategoryFilter({ label, active, count }: { label: string; active: boolean; count: number }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" aria-busy="true">
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="rounded-xl border border-[#ebebeb] overflow-hidden">
-          <div className="aspect-[16/10] w-full bg-[#f0f0f0] relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.6s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent" />
-          <div className="p-6 space-y-3">
-            <Skeleton height={12} width={64} />
-            <Skeleton height={20} width="75%" />
-            <Skeleton height={12} width="100%" />
-            <Skeleton height={12} width="66%" />
-            <div className="flex gap-2 pt-2">
-              <Skeleton height={24} width={64} rounded="rounded-full" />
-              <Skeleton height={24} width={64} rounded="rounded-full" />
-            </div>
-          </div>
+    <button
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+        active
+          ? 'bg-[#171717] text-white'
+          : 'bg-[#f5f5f5] text-[#4d4d4d] hover:bg-[#ebebeb]'
+      }`}
+    >
+      {label}
+      <span className="text-[11px] px-2 py-0.5 rounded-full text-xs font-mono">
+        {count}
+      </span>
+    </button>
+  );
+}
+
+// Import Reveal for use in the component
+import Reveal from '../components/Reveal';
+
+function ProjectsSkeleton() {
+  return (
+    <>
+      <section className="px-5 sm:px-8 md:px-12 pt-12 sm:pt-16 pb-8 sm:pb-10 max-w-6xl mx-auto space-y-6">
+        <Skeleton height={16} width="50px" />
+        <Skeleton height={48} width="50%" />
+        <Skeleton height={20} width="80%" />
+      </section>
+
+      <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto">
+        <Skeleton height={16} width="50px" className="mb-6" />
+        <div className="flex flex-wrap gap-3">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} height={40} width={100} rounded="rounded-full" />
+          ))}
         </div>
-      ))}
-    </div>
-  );
-}
+      </section>
 
-function ErrorState({ onRetry, error }: { onRetry: () => void; error?: string | null }) {
-  return (
-    <div className="text-center py-16">
-      <SectionHeading
-        title="Couldn't load projects"
-        description={error || 'Something went wrong while fetching projects. You can retry to try again.'}
-        align="center"
-      />
-      <button
-        onClick={onRetry}
-        className="mt-6 inline-flex items-center px-5 h-11 rounded-full bg-[#171717] text-white text-[14px] font-medium hover:opacity-90 transition-opacity"
-      >
-        Retry
-      </button>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="text-center py-16">
-      <SectionHeading
-        title="No projects yet"
-        description="Projects are stored in Supabase. Add projects from the Supabase dashboard to see them here."
-        align="center"
-      />
-    </div>
+      <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto">
+        <Skeleton height={16} width="80px" className="mb-6" />
+        <Skeleton height={28} width="200" className="mb-8" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} height={320} width="100%" />
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
 
