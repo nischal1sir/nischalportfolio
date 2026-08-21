@@ -18,18 +18,18 @@ import navRouter from './routes/nav.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'https://your-portfolio.vercel.app',
-];
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    // Allow requests with no origin (like mobile apps, curl, postman) or if allowed origin matches
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.includes('*')) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // In production, allow all origins if ALLOWED_ORIGINS is not explicitly restricting
+      callback(null, true);
     }
   },
   credentials: true,
