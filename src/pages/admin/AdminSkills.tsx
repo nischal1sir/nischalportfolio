@@ -352,7 +352,7 @@ export default function AdminSkills() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Skills Management</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Skills Management</h1>
             <p className="text-gray-500 mt-1">Manage technical skills, learning items, and soft skills</p>
           </div>
         </div>
@@ -368,7 +368,7 @@ export default function AdminSkills() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Skills Management</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Skills Management</h1>
           <p className="text-gray-500 mt-1">Manage technical skills, learning items, and soft skills</p>
         </div>
         <button
@@ -401,10 +401,10 @@ export default function AdminSkills() {
 
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="border-b border-gray-200">
-          <nav className="flex gap-1 p-1" aria-label="Skills tabs">
+          <nav className="flex gap-1 p-1 overflow-x-auto" aria-label="Skills tabs">
             <button
               onClick={() => setActiveTab('skills')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'skills' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
@@ -412,15 +412,15 @@ export default function AdminSkills() {
             </button>
             <button
               onClick={() => setActiveTab('learning')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'learning' ? 'bg-green-100 text-green-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
-              Currently Learning
+              Learning
             </button>
             <button
               onClick={() => setActiveTab('exploring')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'exploring' ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
@@ -428,7 +428,7 @@ export default function AdminSkills() {
             </button>
             <button
               onClick={() => setActiveTab('soft')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'soft' ? 'bg-orange-100 text-orange-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >

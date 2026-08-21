@@ -12,6 +12,7 @@ import ProjectCard from '../components/ProjectCard';
 import { Skeleton, TextLines } from '../components/ui/Skeleton';
 import { useProfile, useProjects, useServices, useExperiences, useSkills, useSoftSkills, useLearningItems, useExploringItems } from '../hooks/usePortfolioData';
 import { ArrowRightIcon, DownloadIcon, MailIcon } from '../components/ui/Icon';
+import { MapPin } from 'lucide-react';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useReady } from '../hooks/useReady';
 
@@ -123,6 +124,26 @@ export default function Home() {
               Download CV
             </a>
           </div>
+
+          {(profile.email || profile.location) && (
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+              {profile.email && (
+                <a
+                  href={`mailto:${profile.email}`}
+                  className="inline-flex items-center gap-1.5 text-[13px] text-[#888888] hover:text-[#0070f3] transition-colors"
+                >
+                  <MailIcon size={13} />
+                  {profile.email}
+                </a>
+              )}
+              {profile.location && (
+                <span className="inline-flex items-center gap-1.5 text-[13px] text-[#888888]">
+                  <MapPin size={13} />
+                  {profile.location}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Hero photo fan */}

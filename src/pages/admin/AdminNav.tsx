@@ -155,7 +155,7 @@ export default function AdminNav() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Navigation Management</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Navigation Management</h1>
             <p className="text-gray-500 mt-1">Manage main navigation and contact link</p>
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function AdminNav() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Navigation Management</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Navigation Management</h1>
           <p className="text-gray-500 mt-1">Manage main navigation and contact link</p>
         </div>
         <button

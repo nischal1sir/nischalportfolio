@@ -118,7 +118,7 @@ export default function AdminSocials() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Social Links Management</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Social Links Management</h1>
             <p className="text-gray-500 mt-1">Manage your social media and contact links</p>
           </div>
         </div>
@@ -134,18 +134,18 @@ export default function AdminSocials() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Social Links Management</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Social Links Management</h1>
           <p className="text-gray-500 mt-1">Manage your social media and contact links</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={addSocial} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        <div className="flex flex-wrap gap-2">
+          <button onClick={addSocial} className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
             <Plus className="w-4 h-4" />
-            Add Social Link
+            <span>Add Social</span>
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors font-medium text-sm"
           >
             {saving ? (
               <>
@@ -155,7 +155,7 @@ export default function AdminSocials() {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                Save Changes
+                Save
               </>
             )}
           </button>

@@ -4,9 +4,10 @@ import { Field, TextField, TextArea } from '../components/ui/Form';
 import { Button } from '../components/ui/Button';
 import { socials } from '../data/socials';
 import { socialIconLib, ArrowRightIcon } from '../components/ui/Icon';
-import { Check, Dot } from 'lucide-react';
+import { Check, Dot, Mail, MapPin } from 'lucide-react';
 import { submitContact } from '../services/contact';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useProfile } from '../hooks/usePortfolioData';
 
 interface FormState {
   name: string;
@@ -44,6 +45,7 @@ export default function Contact() {
     path: '/contact',
   });
 
+  const { profile } = useProfile();
   const [values, setValues] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
@@ -190,7 +192,7 @@ export default function Contact() {
             )}
           </div>
 
-          <aside className="lg:col-span-2 space-y-8">
+          <aside className="lg:col-span-2 space-y-5">
             <div className="p-6 bg-[#fafafa] border border-[#ebebeb] rounded-lg">
               <h3 className="text-[14px] font-semibold text-[#171717] mb-2">Prefer email?</h3>
               <p className="text-[13px] text-[#4d4d4d] mb-3">
@@ -214,6 +216,33 @@ export default function Contact() {
                 })}
               </div>
             </div>
+
+            {(profile?.email || profile?.location) && (
+              <div className="p-6 bg-[#fafafa] border border-[#ebebeb] rounded-lg">
+                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Contact info</h3>
+                <div className="space-y-3">
+                  {profile?.email && (
+                    <a
+                      href={`mailto:${profile.email}`}
+                      className="flex items-center gap-3 text-[13px] text-[#4d4d4d] hover:text-[#0070f3] transition-colors group"
+                    >
+                      <span className="w-8 h-8 rounded-lg bg-white border border-[#ebebeb] flex items-center justify-center shrink-0 group-hover:border-[#0070f3] transition-colors">
+                        <Mail size={14} className="text-[#888888] group-hover:text-[#0070f3]" />
+                      </span>
+                      <span className="break-all">{profile.email}</span>
+                    </a>
+                  )}
+                  {profile?.location && (
+                    <div className="flex items-center gap-3 text-[13px] text-[#4d4d4d]">
+                      <span className="w-8 h-8 rounded-lg bg-white border border-[#ebebeb] flex items-center justify-center shrink-0">
+                        <MapPin size={14} className="text-[#888888]" />
+                      </span>
+                      <span>{profile.location}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="p-6 bg-[#fafafa] border border-[#ebebeb] rounded-lg">
               <h3 className="text-[14px] font-semibold text-[#171717] mb-2">Good to know</h3>
