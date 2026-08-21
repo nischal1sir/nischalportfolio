@@ -6,16 +6,13 @@ dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || supabaseServiceKey;
 
 if (!supabaseUrl) {
   throw new Error('SUPABASE_URL is required. Please set it in your environment variables.');
 }
 if (!supabaseServiceKey) {
   throw new Error('SUPABASE_SERVICE_KEY is required. Please set it in your environment variables.');
-}
-if (!supabaseAnonKey) {
-  throw new Error('SUPABASE_ANON_KEY is required. Please set it in your environment variables.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -24,7 +21,7 @@ export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 export const supabaseAnon = createClient(
   supabaseUrl,
-  supabaseAnonKey,
+  supabaseAnonKey!,
   { auth: { persistSession: false } }
 );
 
