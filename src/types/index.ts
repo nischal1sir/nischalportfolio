@@ -34,15 +34,24 @@ export interface ProgressionItem {
   updated_at: string;
 }
 
-export type SkillCategory = 'language' | 'frontend' | 'backend' | 'database' | 'tools' | 'learning' | 'exploring';
+export type SkillCategory = string;
+export type SkillLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert' | string;
 
 export interface Skill {
   id: string;
   name: string;
+  description?: string;
   category: SkillCategory;
+  level?: SkillLevel;
+  proficiency?: number;
+  icon?: string;
+  image_url?: string;
+  is_active?: boolean;
+  is_featured?: boolean;
+  show_on_home?: boolean;
   order_index: number;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface SoftSkill {

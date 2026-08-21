@@ -4,8 +4,6 @@ import type { Skill, SoftSkill } from '../types.js';
 
 const router = Router();
 
-const validCategories = ['language', 'frontend', 'backend', 'database', 'tools', 'learning', 'exploring'];
-
 router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const { data, error } = await supabase
@@ -36,19 +34,35 @@ router.get('/soft', async (_req: Request, res: Response, next: NextFunction) => 
 
 router.post('/', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, category, order_index } = req.body;
+    const {
+      name, description, category, level, proficiency, icon,
+      image_url, is_active, is_featured, show_on_home, order_index,
+    } = req.body;
+
     if (!name || !category) {
       res.status(400).json({ error: 'Name and category are required' });
       return;
     }
-    if (!validCategories.includes(category)) {
-      res.status(400).json({ error: `Category must be one of: ${validCategories.join(', ')}` });
-      return;
-    }
+
+    const newSkill = {
+      name,
+      description: description || '',
+      category,
+      level: level || 'Intermediate',
+      proficiency: proficiency !== undefined ? Number(proficiency) : 80,
+      icon: icon || '',
+      image_url: image_url || '',
+      is_active: is_active !== undefined ? Boolean(is_active) : true,
+      is_featured: is_featured !== undefined ? Boolean(is_featured) : false,
+      show_on_home: show_on_home !== undefined ? Boolean(show_on_home) : true,
+      order_index: order_index !== undefined ? Number(order_index) : 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
 
     const { data, error } = await supabase
       .from('skills')
-      .insert({ name, category, order_index: order_index || 0 })
+      .insert(newSkill)
       .select()
       .single();
 
@@ -61,17 +75,23 @@ router.post('/', requireAuth, async (req: Request, res: Response, next: NextFunc
 
 router.put('/:id', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, category, order_index } = req.body;
+    const {
+      name, description, category, level, proficiency, icon,
+      image_url, is_active, is_featured, show_on_home, order_index,
+    } = req.body;
+
     const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (name !== undefined) updateData.name = name;
-    if (category !== undefined) {
-      if (!validCategories.includes(category)) {
-        res.status(400).json({ error: `Category must be one of: ${validCategories.join(', ')}` });
-        return;
-      }
-      updateData.category = category;
-    }
-    if (order_index !== undefined) updateData.order_index = order_index;
+    if (description !== undefined) updateData.description = description;
+    if (category !== undefined) updateData.category = category;
+    if (level !== undefined) updateData.level = level;
+    if (proficiency !== undefined) updateData.proficiency = Number(proficiency);
+    if (icon !== undefined) updateData.icon = icon;
+    if (image_url !== undefined) updateData.image_url = image_url;
+    if (is_active !== undefined) updateData.is_active = Boolean(is_active);
+    if (is_featured !== undefined) updateData.is_featured = Boolean(is_featured);
+    if (show_on_home !== undefined) updateData.show_on_home = Boolean(show_on_home);
+    if (order_index !== undefined) updateData.order_index = Number(order_index);
 
     const { data, error } = await supabase
       .from('skills')

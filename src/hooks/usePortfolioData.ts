@@ -7,7 +7,6 @@ import type {
 } from '../types';
 
 import { profile as fbProfile, philosophy as fbPhilosophy, progression as fbProgression } from '../data/profile';
-import { skills as fbSkills } from '../data/skills';
 import { projects as fbProjects } from '../data/projects';
 import { experiences as fbExperiences } from '../data/experience';
 import { education as fbEducation } from '../data/education';
@@ -57,14 +56,13 @@ const defaultProgression: ProgressionItem[] = fbProgression.map((step, idx) => (
   updated_at: now,
 }));
 
-const defaultSkills: Skill[] = fbSkills.map((s, idx) => ({
-  id: `skill-${idx}`,
-  name: s.name,
-  category: s.category as any,
-  order_index: idx,
-  created_at: now,
-  updated_at: now,
-}));
+const defaultSkills: Skill[] = [
+  { id: 'skill-1', name: 'JavaScript', category: 'Languages', level: 'Advanced', proficiency: 90, icon: 'Code', is_active: true, is_featured: true, show_on_home: true, order_index: 0, created_at: now, updated_at: now },
+  { id: 'skill-2', name: 'TypeScript', category: 'Languages', level: 'Advanced', proficiency: 85, icon: 'FileCode', is_active: true, is_featured: true, show_on_home: true, order_index: 1, created_at: now, updated_at: now },
+  { id: 'skill-3', name: 'React', category: 'Frontend', level: 'Expert', proficiency: 92, icon: 'Layout', is_active: true, is_featured: true, show_on_home: true, order_index: 2, created_at: now, updated_at: now },
+  { id: 'skill-4', name: 'Node.js', category: 'Backend', level: 'Intermediate', proficiency: 80, icon: 'Server', is_active: true, is_featured: false, show_on_home: true, order_index: 3, created_at: now, updated_at: now },
+  { id: 'skill-5', name: 'Supabase', category: 'Database', level: 'Advanced', proficiency: 88, icon: 'Database', is_active: true, is_featured: true, show_on_home: true, order_index: 4, created_at: now, updated_at: now },
+];
 
 const defaultProjects: Project[] = fbProjects.map((p, idx) => ({
   id: p.id,
@@ -362,7 +360,7 @@ export function useProjects(featuredOnly = false) {
   return { projects, loading, error };
 }
 
-export function useSkills() {
+export function useSkills(options?: { homeOnly?: boolean; activeOnly?: boolean }) {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -371,19 +369,30 @@ export function useSkills() {
     let cancelled = false;
     async function fetchSkills() {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('skills')
           .select('*')
           .order('order_index', { ascending: true });
+
+        if (options?.homeOnly) {
+          query = query.eq('show_on_home', true);
+        }
+
+        if (options?.activeOnly !== false) {
+          // By default, filter active skills for public pages
+          query = query.neq('is_active', false);
+        }
+
+        const { data, error } = await query;
 
         if (cancelled) return;
         if (error) {
           setError(error.message);
           setSkills(defaultSkills);
         } else if (!data) {
-          setSkills(defaultSkills);
+          setSkills([]);
         } else {
-          setSkills(data);
+          setSkills(data as Skill[]);
         }
       } catch (err) {
         if (!cancelled) setSkills(defaultSkills);
@@ -393,7 +402,7 @@ export function useSkills() {
     }
     fetchSkills();
     return () => { cancelled = true; };
-  }, []);
+  }, [options?.homeOnly, options?.activeOnly]);
 
   return { skills, loading, error };
 }
@@ -780,8 +789,7 @@ export function useLearningItems() {
         if (cancelled) return;
         if (error || !data || data.length === 0) {
           if (error) setError(error.message);
-          const learningFromSkills = fbSkills.filter(s => s.category === 'learning').map(s => s.name);
-          setItems(learningFromSkills.length > 0 ? learningFromSkills : ['TypeScript', 'Next.js 14', 'PostgreSQL', 'TailwindCSS']);
+          setItems(['TypeScript', 'Next.js 14', 'PostgreSQL', 'TailwindCSS']);
         } else {
           setItems(data.map(d => d.name));
         }
@@ -816,8 +824,7 @@ export function useExploringItems() {
         if (cancelled) return;
         if (error || !data || data.length === 0) {
           if (error) setError(error.message);
-          const exploringFromSkills = fbSkills.filter(s => s.category === 'exploring').map(s => s.name);
-          setItems(exploringFromSkills.length > 0 ? exploringFromSkills : ['GraphQL', 'Docker', 'AWS Lambda', 'WebSockets']);
+          setItems(['GraphQL', 'Docker', 'AWS Lambda', 'WebSockets']);
         } else {
           setItems(data.map(d => d.name));
         }

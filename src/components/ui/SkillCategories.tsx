@@ -1,26 +1,27 @@
 import Reveal from '../Reveal';
-import { TechTag } from './Section';
+import { SkillCard } from './SkillCard';
+import type { Skill } from '../../types';
 
 export function SkillGroup({
   label,
-  items,
+  skills,
   reveal = true,
 }: {
   label: string;
-  items: { name: string; category: string }[];
+  skills: Skill[];
   reveal?: boolean;
 }) {
   const body = (
-    <div className="p-5 sm:p-6 border border-[#ebebeb] rounded-lg bg-[#fafafa]">
-      <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-medium mb-4 text-[#4d4d4d]">
-        {label}
+    <div className="space-y-4">
+      <h3 className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-neutral-800 pb-2">
+        {label} ({skills.length})
       </h3>
-      {items.length === 0 ? (
-        <p className="text-[13px] text-[#888888]">Nothing here yet.</p>
+      {skills.length === 0 ? (
+        <p className="text-xs text-gray-400 italic">No skills added in this category.</p>
       ) : (
-        <div className="flex flex-wrap gap-2.5">
-          {items.map((s) => (
-            <TechTag key={s.name} name={s.name} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {skills.map((skill) => (
+            <SkillCard key={skill.id || skill.name} skill={skill} showCategory={false} />
           ))}
         </div>
       )}
@@ -30,32 +31,45 @@ export function SkillGroup({
   return reveal ? <Reveal>{body}</Reveal> : body;
 }
 
-const skillCategories = [
-  { key: 'language', label: 'Languages' },
-  { key: 'frontend', label: 'Frontend' },
-  { key: 'backend', label: 'Backend' },
-  { key: 'database', label: 'Database' },
-  { key: 'tools', label: 'Tools' },
-  { key: 'learning', label: 'Learning' },
-  { key: 'exploring', label: 'Exploring' },
-];
-
-function skillsByCategory(category: string, skills: { name: string; category: string }[]) {
-  return skills.filter(s => s.category === category);
-}
-
 export function SkillCategories({
   skills,
   limit,
 }: {
-  skills: { name: string; category: string }[];
+  skills: Skill[];
   limit?: number;
 }) {
+  // Dynamically extract categories present in the skills list
+  const categoryMap = new Map<string, Skill[]>();
+
+  skills.forEach((skill) => {
+    const categoryName = skill.category || 'Other';
+    if (!categoryMap.has(categoryName)) {
+      categoryMap.set(categoryName, []);
+    }
+    categoryMap.get(categoryName)!.push(skill);
+  });
+
+  const categoryEntries = Array.from(categoryMap.entries());
+
+  if (categoryEntries.length === 0) {
+    return (
+      <div className="py-12 text-center text-gray-500">
+        No skills available at the moment.
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-      {skillCategories.map((group) => {
-        const items = limit ? skillsByCategory(group.key, skills).slice(0, limit) : skillsByCategory(group.key, skills);
-        return <SkillGroup key={group.key} label={group.label} items={items} />;
+    <div className="space-y-10">
+      {categoryEntries.map(([categoryLabel, categorySkills]) => {
+        const displaySkills = limit ? categorySkills.slice(0, limit) : categorySkills;
+        return (
+          <SkillGroup
+            key={categoryLabel}
+            label={categoryLabel}
+            skills={displaySkills}
+          />
+        );
       })}
     </div>
   );

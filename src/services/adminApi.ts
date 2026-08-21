@@ -408,6 +408,10 @@ export const skillsApi = {
     if (error || !data) return [];
     return data.map(d => d.name);
   },
+
+  async reorder(items: { id: string; order_index: number }[]): Promise<void> {
+    return reorderItems('skills', items);
+  },
 };
 
 // ============================================================================

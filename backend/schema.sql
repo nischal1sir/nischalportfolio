@@ -128,11 +128,31 @@ create policy "Admin write progression"
 create table if not exists public.skills (
   id              uuid primary key default gen_random_uuid(),
   name            text not null,
-  category        text not null check (category in ('language', 'frontend', 'backend', 'database', 'tools', 'learning', 'exploring')),
+  description     text not null default '',
+  category        text not null,
+  level           text not null default 'Intermediate',
+  proficiency     integer not null default 80,
+  icon            text not null default '',
+  image_url       text not null default '',
+  is_active       boolean not null default true,
+  is_featured     boolean not null default false,
+  show_on_home    boolean not null default true,
   order_index     integer not null default 0,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );
+
+-- Ensure columns exist and drop restrictive category check on existing skills table
+alter table public.skills drop constraint if exists skills_category_check;
+alter table public.skills add column if not exists description text not null default '';
+alter table public.skills add column if not exists level text not null default 'Intermediate';
+alter table public.skills add column if not exists proficiency integer not null default 80;
+alter table public.skills add column if not exists icon text not null default '';
+alter table public.skills add column if not exists image_url text not null default '';
+alter table public.skills add column if not exists is_active boolean not null default true;
+alter table public.skills add column if not exists is_featured boolean not null default false;
+alter table public.skills add column if not exists show_on_home boolean not null default true;
+
 
 create index if not exists skills_category_idx on public.skills (category);
 create index if not exists skills_order_idx on public.skills (order_index);

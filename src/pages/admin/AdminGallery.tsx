@@ -251,7 +251,7 @@ export default function AdminGallery() {
       )}
 
       {/* Mode Switcher Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-gray-200 pb-2 overflow-x-auto whitespace-nowrap">
         <button
           onClick={() => setActiveTab('canvas')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
@@ -301,7 +301,8 @@ export default function AdminGallery() {
             </div>
 
             {/* Grid Container */}
-            <div className="grid grid-cols-12 auto-rows-[100px] gap-3">
+            <div className="overflow-x-auto pb-2">
+              <div className="grid grid-cols-12 auto-rows-[100px] gap-3 min-w-[650px] lg:min-w-0">
               {galleryData.map((item, idx) => {
                 const isSelected = selectedCanvasItem?.id === item.id;
                 const colSpan = item.width ? Math.min(12, Math.max(1, item.width)) : 4;
@@ -377,6 +378,7 @@ export default function AdminGallery() {
                   </div>
                 );
               })}
+              </div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-gray-800 text-xs text-gray-400 flex items-center justify-between">

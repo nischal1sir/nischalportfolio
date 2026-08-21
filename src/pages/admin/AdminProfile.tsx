@@ -376,7 +376,7 @@ export default function AdminProfile() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Taglines</h2>
           <div className="space-y-3">
             {(data.taglines || []).map((tagline, index) => (
-              <div key={index} className="flex gap-3">
+              <div key={index} className="flex items-center gap-3">
                 <input
                   type="text"
                   value={tagline}
@@ -621,7 +621,7 @@ export default function AdminProfile() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Progression Steps</h2>
           <div className="space-y-3">
             {progressionItems.map((item, index) => (
-              <div key={index} className="flex gap-3">
+              <div key={index} className="flex items-center gap-3">
                 <input
                   type="text"
                   value={item.step}

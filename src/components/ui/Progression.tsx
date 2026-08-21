@@ -18,7 +18,7 @@ export function Progression() {
             }`}
             style={{ transitionDelay: `${i * 120}ms` }}
           >
-            <span className="px-4 py-2 rounded-full border border-[#ebebeb] bg-white text-[13px] sm:text-[14px] font-semibold text-[#171717]">
+            <span className="px-4 py-2 rounded-full border border-[#ebebeb] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] sm:text-[14px] font-semibold text-[#171717] dark:text-white shadow-sm">
               {step}
             </span>
             {i < steps.length - 1 && (

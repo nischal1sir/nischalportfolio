@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import ShinyText from '../components/ShinyText';
 import CardArc7 from '../components/CardArc7';
@@ -26,10 +27,6 @@ import photo6 from '../assets/image6.png';
 
 const heroImages = [photo, photo1, photo2, photo3, photo4, photo5, photo6];
 
-function skillsByCategory(category: string, skills: { name: string; category: string }[]) {
-  return skills.filter(s => s.category === category);
-}
-
 export default function Home() {
   usePageMeta({
     title: 'Nischal Rai | Developer',
@@ -42,7 +39,17 @@ export default function Home() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { projects: featuredProjects, loading: projectsLoading, error: projectsError } = useProjects(true);
   const { services, loading: servicesLoading } = useServices();
-  const { skills, loading: skillsLoading } = useSkills();
+  const { skills, loading: skillsLoading } = useSkills({ homeOnly: true, activeOnly: true });
+
+  const homeCategories = useMemo(() => {
+    const map = new Map<string, typeof skills>();
+    skills.forEach((s) => {
+      const cat = s.category || 'Other';
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(s);
+    });
+    return Array.from(map.entries());
+  }, [skills]);
   const { skills: softSkills, loading: softSkillsLoading } = useSoftSkills();
   const { items: learningItems, loading: learningLoading } = useLearningItems();
   const { items: exploringItems, loading: exploringLoading } = useExploringItems();
@@ -172,46 +179,58 @@ export default function Home() {
           />
         </Reveal>
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Reveal delay={60}>
-            <div className="p-5 border border-[#ebebeb] rounded-lg bg-[#fafafa]">
-              <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-medium mb-4 text-[#4d4d4d]">
-                Languages
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {skillsByCategory('language', skills).map((s) => (
-                  <TechTag key={s.name} name={s.name} />
-                ))}
-              </div>
-            </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <div className="p-5 border border-[#ebebeb] rounded-lg bg-[#fafafa]">
-              <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-medium mb-4 text-[#4d4d4d]">
-                Frontend
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {skillsByCategory('frontend', skills)
-                  .slice(0, 2)
-                  .map((s) => (
-                    <TechTag key={s.name} name={s.name} />
-                  ))}
-              </div>
-            </div>
-          </Reveal>
+          {homeCategories.map(([categoryLabel, categorySkills], index) => {
+            const visibleSkills = categorySkills.slice(0, 3);
+            const hasMore = categorySkills.length > 3;
+            return (
+              <Reveal key={categoryLabel} delay={60 * (index + 1)}>
+                <div className="p-5 border border-[#ebebeb] dark:border-neutral-800 rounded-2xl bg-[#fafafa] dark:bg-neutral-900">
+                  <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-semibold mb-4 text-[#4d4d4d] dark:text-gray-400">
+                    {categoryLabel}
+                  </h3>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {visibleSkills.map((s) => (
+                      <TechTag key={s.id || s.name} name={s.name} />
+                    ))}
+                    {hasMore && (
+                      <Link
+                        to="/skills"
+                        className="px-2.5 py-1 text-xs font-semibold rounded-md bg-gray-200/70 hover:bg-gray-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 transition-colors inline-flex items-center gap-1"
+                        title="View all skills in this category"
+                      >
+                        ...
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
 
-        <Reveal delay={180}>
-          <div className="mt-5 p-5 border border-[#ebebeb] rounded-lg bg-[#fafafa]">
-            <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-medium mb-4 text-[#4d4d4d]">
-              Soft skills
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {softSkills.map((s) => (
-                <TechTag key={s.name} name={s.name} />
-              ))}
+        {softSkills.length > 0 && (
+          <Reveal delay={180}>
+            <div className="mt-5 p-5 border border-[#ebebeb] dark:border-neutral-800 rounded-2xl bg-[#fafafa] dark:bg-neutral-900">
+              <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-semibold mb-4 text-[#4d4d4d] dark:text-gray-400">
+                Soft skills
+              </h3>
+              <div className="flex flex-wrap gap-2 items-center">
+                {softSkills.slice(0, 3).map((s) => (
+                  <TechTag key={s.id || s.name} name={s.name} />
+                ))}
+                {softSkills.length > 3 && (
+                  <Link
+                    to="/skills"
+                    className="px-2.5 py-1 text-xs font-semibold rounded-md bg-gray-200/70 hover:bg-gray-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 transition-colors"
+                    title="View all soft skills on skills page"
+                  >
+                    ...
+                  </Link>
+                )}
+              </div>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        )}
         <div className="mt-6">
           <ReadMoreLink to="/skills">View All Skills</ReadMoreLink>
         </div>

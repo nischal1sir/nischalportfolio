@@ -66,22 +66,24 @@ on conflict do nothing;
 -- =============================================================================
 -- skills
 -- =============================================================================
-insert into public.skills (name, category, order_index) values ('JavaScript', 'language', 0) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Python', 'language', 1) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Java', 'language', 2) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('React', 'frontend', 0) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Tailwind CSS', 'frontend', 1) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('HTML / CSS', 'frontend', 2) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('TypeScript', 'frontend', 3) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Node.js', 'backend', 0) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Express', 'backend', 1) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('MongoDB', 'database', 0) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('MySQL', 'database', 1) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Supabase', 'database', 2) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Git / GitHub', 'tools', 0) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Linux / CLI', 'tools', 1) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('Figma', 'tools', 2) on conflict do nothing;
-insert into public.skills (name, category, order_index) values ('VS Code', 'tools', 3) on conflict do nothing;
+insert into public.skills (name, category, description, level, proficiency, icon, show_on_home, is_featured, is_active, order_index) values
+  ('JavaScript', 'Languages', 'Core language for web development, ES6+, async/await, and DOM manipulation.', 'Advanced', 90, 'Code', true, true, true, 0),
+  ('Python', 'Languages', 'Used for scripting, data analysis, algorithms, and backend services.', 'Intermediate', 80, 'Code2', true, false, true, 1),
+  ('Java', 'Languages', 'Object-oriented programming, data structures, and backend systems.', 'Intermediate', 75, 'Coffee', false, false, true, 2),
+  ('React', 'Frontend', 'Modern UI component architecture, hooks, state management, and custom hooks.', 'Advanced', 92, 'Atom', true, true, true, 3),
+  ('TypeScript', 'Frontend', 'Type-safe JavaScript, interfaces, generics, and strict tooling integration.', 'Advanced', 88, 'FileCode2', true, true, true, 4),
+  ('Tailwind CSS', 'Frontend', 'Utility-first CSS framework for responsive, modern UI design.', 'Advanced', 90, 'Palette', true, true, true, 5),
+  ('HTML / CSS', 'Frontend', 'Semantic HTML5, CSS3 flexbox/grid, animations, and accessible layouts.', 'Expert', 95, 'Layout', true, false, true, 6),
+  ('Node.js', 'Backend', 'Server-side JavaScript environment, RESTful APIs, and microservices.', 'Advanced', 85, 'Server', true, true, true, 7),
+  ('Express', 'Backend', 'Fast web framework for Node.js, middleware integration, and API routing.', 'Advanced', 85, 'Cpu', true, false, true, 8),
+  ('MongoDB', 'Database', 'NoSQL document database, Mongoose ODM, and aggregation pipelines.', 'Intermediate', 80, 'Database', true, false, true, 9),
+  ('PostgreSQL', 'Database', 'Relational SQL database, complex queries, indexing, and Supabase integration.', 'Advanced', 85, 'Database', true, true, true, 10),
+  ('Supabase', 'Database', 'Open-source Firebase alternative with Postgres database, auth, and real-time subscriptions.', 'Advanced', 88, 'Zap', true, true, true, 11),
+  ('Git / GitHub', 'Tools', 'Version control, branch workflows, pull requests, and collaborative code reviews.', 'Advanced', 90, 'GitBranch', true, true, true, 12),
+  ('Linux / CLI', 'Tools', 'Command line navigation, shell scripting, package management, and basic server admin.', 'Intermediate', 80, 'Terminal', false, false, true, 13),
+  ('Figma', 'Tools', 'UI design prototyping, component libraries, and translating designs into responsive code.', 'Intermediate', 75, 'Figma', false, false, true, 14),
+  ('VS Code', 'Tools', 'Primary IDE with custom extension setup, debugging tools, and Git integration.', 'Advanced', 90, 'Monitor', false, false, true, 15)
+on conflict do nothing;
 
 -- =============================================================================
 -- soft skills
