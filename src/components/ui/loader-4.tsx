@@ -26,51 +26,52 @@ export default function Loader() {
     <div className="flex flex-col items-center justify-center min-h-[260px]">
       <style>{`
         .loader-grid {
-          --cell-size: 54px;
-          --cell-spacing: 4px;
-          --cells: 3;
-          --total-size: calc(var(--cells) * (var(--cell-size) + 2 * var(--cell-spacing)));
-          display: flex;
-          flex-wrap: wrap;
-          width: var(--total-size);
-          height: var(--total-size);
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          grid-template-rows: repeat(3, 1fr);
+          gap: 6px;
+          width: 220px;
+          height: 220px;
         }
 
         @media (min-width: 640px) {
           .loader-grid {
-            --cell-size: 76px;
-            --cell-spacing: 6px;
+            width: 280px;
+            height: 280px;
+            gap: 8px;
           }
         }
 
         @media (min-width: 1024px) {
           .loader-grid {
-            --cell-size: 96px;
-            --cell-spacing: 8px;
+            width: 320px;
+            height: 320px;
+            gap: 10px;
           }
         }
 
         .loader-cell {
-          flex: 0 0 var(--cell-size);
-          height: var(--cell-size);
-          margin: var(--cell-spacing);
+          width: 100%;
+          height: 100%;
           background-color: #ffffff;
-          border: 1.5px solid #ebebeb;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          border: 1px solid rgba(230, 230, 230, 0.8);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
           box-sizing: border-box;
-          border-radius: 14px;
+          border-radius: 8px;
+          overflow: hidden;
+          padding: 0;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 10px;
           animation: 1.8s ripple ease-in-out infinite;
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .loader-cell img {
-          max-width: 100%;
-          max-height: 100%;
-          object-fit: contain;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
         }
 
         .loader-cell.d-1 {
@@ -91,31 +92,31 @@ export default function Loader() {
 
         @keyframes ripple {
           0% {
-            transform: scale(0.88);
-            opacity: 0.35;
-            filter: grayscale(70%);
+            transform: scale(0.92);
+            opacity: 0.4;
+            filter: grayscale(60%);
             border-color: #ebebeb;
           }
 
           30% {
-            transform: scale(1.08);
+            transform: scale(1.05);
             opacity: 1;
             filter: grayscale(0%);
             border-color: #171717;
-            box-shadow: 0 0 24px rgba(23, 23, 23, 0.3);
+            box-shadow: 0 0 20px rgba(23, 23, 23, 0.3);
           }
 
           60% {
-            transform: scale(0.88);
-            opacity: 0.35;
-            filter: grayscale(70%);
+            transform: scale(0.92);
+            opacity: 0.4;
+            filter: grayscale(60%);
             border-color: #ebebeb;
           }
 
           100% {
-            transform: scale(0.88);
-            opacity: 0.35;
-            filter: grayscale(70%);
+            transform: scale(0.92);
+            opacity: 0.4;
+            filter: grayscale(60%);
             border-color: #ebebeb;
           }
         }

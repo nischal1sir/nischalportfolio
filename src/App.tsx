@@ -7,13 +7,9 @@ import { ScrollToTop } from './components/ui/ScrollToTop';
 import { InitialSplashLoader } from './components/ui/loader-4';
 
 const App = () => {
-  const [showSplash, setShowSplash] = useState(() => {
-    // Show splash animation on initial page visit per session
-    return !sessionStorage.getItem('hasVisitedPortfolio');
-  });
+  const [showSplash, setShowSplash] = useState(true);
 
   const handleSplashComplete = () => {
-    sessionStorage.setItem('hasVisitedPortfolio', 'true');
     setShowSplash(false);
   };
 
