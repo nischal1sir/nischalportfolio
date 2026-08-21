@@ -13,12 +13,12 @@ const cellsData = [
   { img: img00, delayClass: 'd-0', alt: 'Stack 1' },
   { img: img10, delayClass: 'd-1', alt: 'Stack 2' },
   { img: img20, delayClass: 'd-2', alt: 'Stack 3' },
-  { img: img30, delayClass: 'd-1', alt: 'Stack 4' },
-  { img: img40, delayClass: 'd-2', alt: 'Stack 5' },
-  { img: img50, delayClass: 'd-2', alt: 'Stack 6' },
-  { img: img60, delayClass: 'd-3', alt: 'Stack 7' },
-  { img: img70, delayClass: 'd-3', alt: 'Stack 8' },
-  { img: img80, delayClass: 'd-4', alt: 'Stack 9' },
+  { img: img30, delayClass: 'd-3', alt: 'Stack 4' },
+  { img: img40, delayClass: 'd-4', alt: 'Stack 5' },
+  { img: img50, delayClass: 'd-5', alt: 'Stack 6' },
+  { img: img60, delayClass: 'd-6', alt: 'Stack 7' },
+  { img: img70, delayClass: 'd-7', alt: 'Stack 8' },
+  { img: img80, delayClass: 'd-8', alt: 'Stack 9' },
 ];
 
 export default function Loader() {
@@ -54,8 +54,8 @@ export default function Loader() {
           width: 100%;
           height: 100%;
           background-color: #ffffff;
-          border: 1px solid rgba(230, 230, 230, 0.8);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+          border: 1px solid rgba(220, 220, 220, 0.8);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
           box-sizing: border-box;
           border-radius: 8px;
           overflow: hidden;
@@ -63,7 +63,9 @@ export default function Loader() {
           display: flex;
           align-items: center;
           justify-content: center;
-          animation: 1.8s ripple ease-in-out infinite;
+          opacity: 0;
+          transform: scale(0.6) translateY(18px);
+          animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -74,50 +76,30 @@ export default function Loader() {
           display: block;
         }
 
-        .loader-cell.d-1 {
-          animation-delay: 140ms;
-        }
+        .loader-cell.d-0 { animation-delay: 0ms; }
+        .loader-cell.d-1 { animation-delay: 140ms; }
+        .loader-cell.d-2 { animation-delay: 280ms; }
+        .loader-cell.d-3 { animation-delay: 420ms; }
+        .loader-cell.d-4 { animation-delay: 560ms; }
+        .loader-cell.d-5 { animation-delay: 700ms; }
+        .loader-cell.d-6 { animation-delay: 840ms; }
+        .loader-cell.d-7 { animation-delay: 980ms; }
+        .loader-cell.d-8 { animation-delay: 1120ms; }
 
-        .loader-cell.d-2 {
-          animation-delay: 280ms;
-        }
-
-        .loader-cell.d-3 {
-          animation-delay: 420ms;
-        }
-
-        .loader-cell.d-4 {
-          animation-delay: 560ms;
-        }
-
-        @keyframes ripple {
+        @keyframes popIn {
           0% {
-            transform: scale(0.92);
-            opacity: 0.4;
-            filter: grayscale(60%);
-            border-color: #ebebeb;
+            opacity: 0;
+            transform: scale(0.6) translateY(18px);
           }
-
-          30% {
-            transform: scale(1.05);
+          70% {
             opacity: 1;
-            filter: grayscale(0%);
-            border-color: #171717;
-            box-shadow: 0 0 20px rgba(23, 23, 23, 0.3);
+            transform: scale(1.06) translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
           }
-
-          60% {
-            transform: scale(0.92);
-            opacity: 0.4;
-            filter: grayscale(60%);
-            border-color: #ebebeb;
-          }
-
           100% {
-            transform: scale(0.92);
-            opacity: 0.4;
-            filter: grayscale(60%);
-            border-color: #ebebeb;
+            opacity: 1;
+            transform: scale(1) translateY(0px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
           }
         }
       `}</style>
@@ -134,19 +116,20 @@ export default function Loader() {
 
 /**
  * InitialSplashLoader Component
- * Shows a full-screen smooth loading splash screen when user visits for the first time.
+ * Shows a full-screen smooth loading splash screen when user enters/refreshes.
  */
 export function InitialSplashLoader({ onComplete }: { onComplete?: () => void }) {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    // Fade out after all 9 boxes have finished revealing 1-by-1
     const timer = setTimeout(() => {
       setFading(true);
-    }, 3400);
+    }, 2200);
 
     const removeTimer = setTimeout(() => {
       if (onComplete) onComplete();
-    }, 3900);
+    }, 2700);
 
     return () => {
       clearTimeout(timer);
