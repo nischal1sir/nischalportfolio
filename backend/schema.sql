@@ -472,54 +472,67 @@ begin
   return new;
 end $$;
 
+drop trigger if exists update_profiles_updated_at on public.profiles;
 create trigger update_profiles_updated_at
   before update on public.profiles
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_philosophy_items_updated_at on public.philosophy_items;
 create trigger update_philosophy_items_updated_at
   before update on public.philosophy_items
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_progression_items_updated_at on public.progression_items;
 create trigger update_progression_items_updated_at
   before update on public.progression_items
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_skills_updated_at on public.skills;
 create trigger update_skills_updated_at
   before update on public.skills
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_soft_skills_updated_at on public.soft_skills;
 create trigger update_soft_skills_updated_at
   before update on public.soft_skills
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_projects_updated_at on public.projects;
 create trigger update_projects_updated_at
   before update on public.projects
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_experiences_updated_at on public.experiences;
 create trigger update_experiences_updated_at
   before update on public.experiences
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_education_updated_at on public.education;
 create trigger update_education_updated_at
   before update on public.education
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_services_updated_at on public.services;
 create trigger update_services_updated_at
   before update on public.services
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_social_links_updated_at on public.social_links;
 create trigger update_social_links_updated_at
   before update on public.social_links
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_gallery_updated_at on public.gallery;
 create trigger update_gallery_updated_at
   before update on public.gallery
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_faqs_updated_at on public.faqs;
 create trigger update_faqs_updated_at
   before update on public.faqs
   for each row execute function public.update_updated_at_column();
 
+drop trigger if exists update_nav_links_updated_at on public.nav_links;
 create trigger update_nav_links_updated_at
   before update on public.nav_links
   for each row execute function public.update_updated_at_column();
