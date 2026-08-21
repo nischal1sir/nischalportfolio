@@ -27,6 +27,9 @@ export async function submitContact(
     createdAt: payload.createdAt || new Date().toISOString(),
   };
 
+  const web3Key = import.meta.env.VITE_WEB3FORMS_KEY;
+
+  // 1. Primary: Try Express Backend API
   try {
     const res = await fetch(`${API_URL}/contact`, {
       method: 'POST',
@@ -51,9 +54,29 @@ export async function submitContact(
     if (err instanceof DOMException && err.name === 'AbortError') {
       return { ok: false, message: 'Request was cancelled.' };
     }
+    console.warn('[contact] Express API unreachable, executing fallback...', err);
   }
 
-  // Fallback direct to Supabase
+  // 2. Web3Forms Direct Email Backup (if key present)
+  if (web3Key) {
+    try {
+      await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: web3Key,
+          name: body.name,
+          email: body.email,
+          subject: body.subject,
+          message: body.message,
+        }),
+      });
+    } catch (e) {
+      console.warn('[contact] Web3Forms fallback error:', e);
+    }
+  }
+
+  // 3. Save to Supabase DB (for Admin Dashboard)
   try {
     const { error } = await supabase
       .from('contact_messages')
