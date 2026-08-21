@@ -1,42 +1,47 @@
 import nodemailer from 'nodemailer';
 import type { ContactInput } from '../types.js';
 
-const {
-  SMTP_HOST,
-  SMTP_PORT,
-  SMTP_USER,
-  SMTP_PASS,
-  EMAIL_FROM,
-  EMAIL_TO,
-} = process.env;
+function getTransporter(): nodemailer.Transporter | null {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = Number(process.env.SMTP_PORT || 587);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
 
-const required = [SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, EMAIL_FROM, EMAIL_TO];
-const hasEmailConfig = required.every(Boolean);
+  if (!user || !pass) {
+    return null;
+  }
 
-let transporter: nodemailer.Transporter | null = null;
-
-if (hasEmailConfig) {
-  transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT),
-    secure: Number(SMTP_PORT) === 465,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS,
-    },
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
   });
 }
 
+export function isEmailConfigured(): boolean {
+  return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
+}
+
 export async function sendContactEmail(input: ContactInput): Promise<{ sent: boolean; error?: string }> {
+  const transporter = getTransporter();
   if (!transporter) {
     console.warn('[email] Email config not set - skipping email send');
     return { sent: false, error: 'Email not configured' };
   }
 
+  const emailTo = process.env.EMAIL_TO || process.env.SMTP_USER;
+  let emailFrom = process.env.EMAIL_FROM;
+
+  if (!emailFrom || emailFrom.includes('your_gmail')) {
+    emailFrom = `"Portfolio Contact" <${process.env.SMTP_USER}>`;
+  }
+
   try {
     await transporter.sendMail({
-      from: EMAIL_FROM,
-      to: EMAIL_TO,
+      from: emailFrom,
+      to: emailTo,
+      replyTo: `"${input.name}" <${input.email}>`,
       subject: `Portfolio Contact: ${input.subject}`,
       text: `
 New contact form submission from your portfolio:
@@ -78,7 +83,7 @@ ${input.message}
       `.trim(),
     });
     
-    console.log('[email] Contact email sent successfully');
+    console.log('[email] Contact email sent successfully to', emailTo);
     return { sent: true };
   } catch (err) {
     console.error('[email] Failed to send contact email:', err);
@@ -95,8 +100,4 @@ function escapeHtml(text: string): string {
     "'": '&#039;',
   };
   return text.replace(/[&<>"']/g, (m) => map[m]);
-}
-
-export function isEmailConfigured(): boolean {
-  return hasEmailConfig;
 }

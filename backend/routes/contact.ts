@@ -52,7 +52,7 @@ router.post('/', async (req: Request, res: Response, _next: NextFunction) => {
       message: String(input.message).trim().slice(0, MAX.message),
     };
 
-    const { error } = await supabase.from('contact_messages').insert({
+    const { error: dbError } = await supabase.from('contact_messages').insert({
       name: clean.name,
       email: clean.email,
       subject: clean.subject,
@@ -60,16 +60,15 @@ router.post('/', async (req: Request, res: Response, _next: NextFunction) => {
       created_at: createdAt,
     });
 
-    if (error) {
-      if (error.message.toLowerCase().includes('insert or update on table') && error.message.toLowerCase().includes('does not exist')) {
-        console.warn('[contact] contact_messages table not found — schema must be applied. See backend/schema.sql');
-      }
-      throw error;
+    if (dbError) {
+      console.warn('[contact] Supabase DB insert error (message will still attempt email send):', dbError.message);
     }
 
     // Send email notification
+    let emailSent = false;
     if (isEmailConfigured()) {
       const emailResult = await sendContactEmail(clean);
+      emailSent = emailResult.sent;
       if (!emailResult.sent) {
         console.warn('[contact] Email not sent:', emailResult.error);
       }

@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import projectsRouter from './routes/projects.js';
 import galleryRouter from './routes/gallery.js';
 import contactRouter from './routes/contact.js';
@@ -12,8 +14,6 @@ import servicesRouter from './routes/services.js';
 import socialsRouter from './routes/socials.js';
 import faqsRouter from './routes/faqs.js';
 import navRouter from './routes/nav.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

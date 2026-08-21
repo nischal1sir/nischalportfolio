@@ -8,6 +8,8 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:all": "npx --yes concurrently \"npm run dev:backend\" \"npm run dev\"",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
