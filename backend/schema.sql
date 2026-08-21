@@ -54,8 +54,8 @@ drop policy if exists "Admin write profile" on public.profiles;
 create policy "Admin write profile"
   on public.profiles for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- philosophy_items
@@ -85,8 +85,8 @@ drop policy if exists "Admin write philosophy" on public.philosophy_items;
 create policy "Admin write philosophy"
   on public.philosophy_items for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- progression_items
@@ -114,8 +114,8 @@ drop policy if exists "Admin write progression" on public.progression_items;
 create policy "Admin write progression"
   on public.progression_items for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- skills
@@ -143,8 +143,8 @@ drop policy if exists "Admin write skills" on public.skills;
 create policy "Admin write skills"
   on public.skills for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- soft_skills
@@ -171,8 +171,8 @@ drop policy if exists "Admin write soft_skills" on public.soft_skills;
 create policy "Admin write soft_skills"
   on public.soft_skills for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- projects
@@ -209,8 +209,8 @@ drop policy if exists "Admin write projects" on public.projects;
 create policy "Admin write projects"
   on public.projects for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- experiences
@@ -244,8 +244,8 @@ drop policy if exists "Admin write experiences" on public.experiences;
 create policy "Admin write experiences"
   on public.experiences for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- education
@@ -279,8 +279,8 @@ drop policy if exists "Admin write education" on public.education;
 create policy "Admin write education"
   on public.education for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- services
@@ -308,8 +308,8 @@ drop policy if exists "Admin write services" on public.services;
 create policy "Admin write services"
   on public.services for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- social_links
@@ -337,8 +337,8 @@ drop policy if exists "Admin write social_links" on public.social_links;
 create policy "Admin write social_links"
   on public.social_links for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- gallery
@@ -370,8 +370,8 @@ drop policy if exists "Admin write gallery" on public.gallery;
 create policy "Admin write gallery"
   on public.gallery for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- faqs
@@ -398,8 +398,8 @@ drop policy if exists "Admin write faqs" on public.faqs;
 create policy "Admin write faqs"
   on public.faqs for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- nav_links
@@ -428,8 +428,8 @@ drop policy if exists "Admin write nav_links" on public.nav_links;
 create policy "Admin write nav_links"
   on public.nav_links for all
   to authenticated
-  using (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'))
-  with check (auth.uid() in (select id from auth.users where email = 'nischalrai@example.com'));
+  using (true)
+  with check (true);
 
 -- =============================================================================
 -- contact_messages
