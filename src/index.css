@@ -419,32 +419,31 @@ html {
   border-radius: var(--radius-xs);
 }
 
-/* Tech tag / badge used across skills, projects and exploring sections */
 .tag {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xxs);
-  background-color: var(--color-canvas-soft-2);
-  color: var(--color-body);
-  border: 1px solid var(--color-hairline);
+  background-color: #ffffff;
+  color: #171717;
+  border: 1px solid #171717;
   border-radius: var(--radius-full);
   padding: 4px 12px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 18px;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .tag:hover {
-  border-color: var(--color-hairline-strong);
-  color: var(--color-ink);
+  border-color: #000000;
+  color: #000000;
   transform: translateY(-1px);
 }
 
 .tag-accent {
-  background-color: var(--color-link-bg-soft);
-  color: var(--color-link-deep);
-  border-color: transparent;
+  background-color: #f0f7ff;
+  color: #0070f3;
+  border-color: #0070f3;
 }
 
 /* Standard section vertical rhythm */

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAdmin } from './AdminContext';
 import {
   Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit2,
-  Search, ArrowUp, ArrowDown, Eye, EyeOff, Home as HomeIcon, Star, X
+  Search, X
 } from 'lucide-react';
 import { skillsApi } from '../../services/adminApi';
 import type { Skill, SoftSkill } from '../../types';
@@ -98,7 +98,6 @@ export default function AdminSkills() {
       if (selectedStatusFilter === 'active') matchesStatus = skill.is_active !== false;
       if (selectedStatusFilter === 'inactive') matchesStatus = skill.is_active === false;
       if (selectedStatusFilter === 'home') matchesStatus = skill.show_on_home === true;
-      if (selectedStatusFilter === 'featured') matchesStatus = skill.is_featured === true;
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
@@ -111,7 +110,6 @@ export default function AdminSkills() {
       category: 'Languages',
       level: 'Intermediate',
       is_active: true,
-      is_featured: false,
       show_on_home: true,
       order_index: skillsData.length,
     });
@@ -168,21 +166,6 @@ export default function AdminSkills() {
     }
   };
 
-  const handleToggleSwitch = async (id: string, field: 'is_active' | 'is_featured' | 'show_on_home', value: boolean) => {
-    setSkillsData((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, [field]: value } : s))
-    );
-    try {
-      await skillsApi.update(id, { [field]: value });
-    } catch (err) {
-      // Revert on error
-      setSkillsData((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, [field]: !value } : s))
-      );
-      setMessage({ type: 'error', text: `Failed to update switch: ${err instanceof Error ? err.message : 'Unknown error'}` });
-    }
-  };
-
   const handleDeleteSkill = async () => {
     if (!deletingSkill) return;
     setSaving(true);
@@ -195,26 +178,6 @@ export default function AdminSkills() {
       setMessage({ type: 'error', text: `Failed to delete skill: ${err instanceof Error ? err.message : 'Unknown error'}` });
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleMoveSkill = async (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= skillsData.length) return;
-
-    const newSkills = [...skillsData];
-    const temp = newSkills[index];
-    newSkills[index] = newSkills[targetIndex];
-    newSkills[targetIndex] = temp;
-
-    // Update order indices
-    const updatedSkills = newSkills.map((s, idx) => ({ ...s, order_index: idx }));
-    setSkillsData(updatedSkills);
-
-    try {
-      await skillsApi.reorder(updatedSkills.map((s) => ({ id: s.id, order_index: s.order_index })));
-    } catch (err) {
-      setMessage({ type: 'error', text: `Failed to reorder: ${err instanceof Error ? err.message : 'Unknown error'}` });
     }
   };
 
@@ -268,7 +231,7 @@ export default function AdminSkills() {
   const renderTechnicalSkillsTab = () => (
     <div className="space-y-6">
       {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-gray-200/80 dark:border-neutral-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-black">
         <div className="flex flex-wrap items-center gap-3 flex-1">
           {/* Search bar */}
           <div className="relative flex-1 min-w-[200px]">
@@ -278,7 +241,7 @@ export default function AdminSkills() {
               placeholder="Search skills..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-4 py-2 bg-white border border-black rounded-lg text-sm text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -286,9 +249,9 @@ export default function AdminSkills() {
           <select
             value={selectedCategoryFilter}
             onChange={(e) => setSelectedCategoryFilter(e.target.value)}
-            className="px-3 py-2 bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="All">All Categories</option>
+            className="px-3 py-2 bg-white border border-black rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">All Categories</option>
             {categoriesList.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
@@ -300,13 +263,12 @@ export default function AdminSkills() {
           <select
             value={selectedStatusFilter}
             onChange={(e) => setSelectedStatusFilter(e.target.value)}
-            className="px-3 py-2 bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="All">All Statuses</option>
+            className="px-3 py-2 bg-white border border-black rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">All Statuses</option>
             <option value="active">Active Only</option>
             <option value="inactive">Inactive Only</option>
             <option value="home">Show on Home</option>
-            <option value="featured">Featured Only</option>
           </select>
         </div>
 
@@ -320,147 +282,64 @@ export default function AdminSkills() {
       </div>
 
       {/* Skills Table */}
-      <div className="bg-white dark:bg-neutral-900 rounded-xl border border-gray-200/80 dark:border-neutral-800 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-xl border border-black overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm min-w-[650px]">
-            <thead className="bg-gray-50 dark:bg-neutral-800/80 border-b border-gray-200 dark:border-neutral-700 text-gray-600 dark:text-gray-400 font-semibold">
+            <thead className="bg-white border-b border-black text-black font-bold">
               <tr>
-                <th className="py-3.5 px-4 w-16 text-center">Order</th>
                 <th className="py-3.5 px-4">Skill Name</th>
                 <th className="py-3.5 px-4">Category</th>
                 <th className="py-3.5 px-4">Level</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
-                <th className="py-3.5 px-4 text-center">Home</th>
-                <th className="py-3.5 px-4 text-center">Featured</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-neutral-800">
+            <tbody className="divide-y divide-gray-200">
               {filteredSkills.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-500 dark:text-gray-400">
+                   <td colSpan={4} className="py-12 text-center text-gray-500 font-medium">
                     No skills found matching your filters.
                   </td>
                 </tr>
               ) : (
                 filteredSkills.map((skill) => {
-                  const globalIdx = skillsData.findIndex((s) => s.id === skill.id);
-                  return (
-                    <tr
-                      key={skill.id}
-                      className="hover:bg-gray-50/80 dark:hover:bg-neutral-800/40 transition-colors"
-                    >
-                      {/* Reorder actions */}
-                      <td className="py-3 px-2 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <button
-                            onClick={() => handleMoveSkill(globalIdx, 'up')}
-                            disabled={globalIdx === 0}
-                            className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30"
-                            title="Move Up"
-                          >
-                            <ArrowUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleMoveSkill(globalIdx, 'down')}
-                            disabled={globalIdx === skillsData.length - 1}
-                            className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30"
-                            title="Move Down"
-                          >
-                            <ArrowDown className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
+                   return (
+                     <tr
+                        key={skill.id}
+                        className="hover:bg-gray-50 transition-colors"
+                     >
+                       <td className="py-3 px-4 font-bold text-black">
+                         {skill.name}
+                       </td>
 
-                      {/* Name */}
-                      <td className="py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                        {skill.name}
-                      </td>
+                       <td className="py-3 px-4">
+                         <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-white text-black border border-black">
+                           {skill.category}
+                         </span>
+                       </td>
 
-                      {/* Category */}
-                      <td className="py-3 px-4">
-                        <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300">
-                          {skill.category}
-                        </span>
-                      </td>
+                       <td className="py-3 px-4 text-xs font-semibold text-black">
+                         {skill.level || 'Intermediate'}
+                       </td>
 
-                      {/* Level */}
-                      <td className="py-3 px-4 text-xs font-medium text-gray-600 dark:text-gray-400">
-                        {skill.level || 'Intermediate'}
-                      </td>
-
-                      {/* Status Toggle */}
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => handleToggleSwitch(skill.id, 'is_active', !(skill.is_active !== false))}
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                            skill.is_active !== false
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-gray-100 text-gray-500 border border-gray-200'
-                          }`}
-                        >
-                          {skill.is_active !== false ? (
-                            <>
-                              <Eye className="w-3 h-3" /> Active
-                            </>
-                          ) : (
-                            <>
-                              <EyeOff className="w-3 h-3" /> Inactive
-                            </>
-                          )}
-                        </button>
-                      </td>
-
-                      {/* Home Toggle */}
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => handleToggleSwitch(skill.id, 'show_on_home', !skill.show_on_home)}
-                          className={`p-1.5 rounded-lg border transition-colors ${
-                            skill.show_on_home
-                              ? 'bg-blue-50 text-blue-600 border-blue-200'
-                              : 'bg-gray-50 text-gray-400 border-gray-200'
-                          }`}
-                          title={skill.show_on_home ? 'Showing on Home' : 'Hidden from Home'}
-                        >
-                          <HomeIcon className="w-4 h-4" />
-                        </button>
-                      </td>
-
-                      {/* Featured Toggle */}
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => handleToggleSwitch(skill.id, 'is_featured', !skill.is_featured)}
-                          className={`p-1.5 rounded-lg border transition-colors ${
-                            skill.is_featured
-                              ? 'bg-amber-50 text-amber-600 border-amber-200'
-                              : 'bg-gray-50 text-gray-400 border-gray-200'
-                          }`}
-                          title={skill.is_featured ? 'Featured Skill' : 'Normal Skill'}
-                        >
-                          <Star className="w-4 h-4 fill-current" />
-                        </button>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openEditModal(skill)}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Edit Skill"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeletingSkill(skill)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete Skill"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                       <td className="py-3 px-4 text-right">
+                         <div className="flex items-center justify-end gap-2">
+                           <button
+                             onClick={() => openEditModal(skill)}
+                             className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                             title="Edit Skill"
+                           >
+                             <Edit2 className="w-4 h-4" />
+                           </button>
+                           <button
+                             onClick={() => setDeletingSkill(skill)}
+                             className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                             title="Delete Skill"
+                           >
+                             <Trash2 className="w-4 h-4" />
+                           </button>
+                         </div>
+                       </td>
+                     </tr>
                   );
                 })
               )}
@@ -473,9 +352,9 @@ export default function AdminSkills() {
 
   const renderSoftSkillsTab = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Soft Skills</h3>
+          <h3 className="text-lg font-bold text-black">Soft Skills</h3>
           <p className="text-sm text-gray-500">Non-technical skills displayed on the skills page.</p>
         </div>
         <div className="flex gap-2">
@@ -493,7 +372,7 @@ export default function AdminSkills() {
                 },
               ])
             }
-            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Soft Skill
@@ -501,7 +380,7 @@ export default function AdminSkills() {
           <button
             onClick={handleSaveOtherTabs}
             disabled={saving}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm font-semibold shadow-xs"
           >
             <Save className="w-4 h-4" />
             Save Soft Skills
@@ -511,21 +390,32 @@ export default function AdminSkills() {
 
       <div className="space-y-4">
         {softSkillsData.map((skill, index) => (
-          <div key={skill.id || index} className="border border-gray-200 dark:border-neutral-800 rounded-xl p-4 bg-white dark:bg-neutral-900 space-y-3 shadow-sm">
+          <div key={skill.id || index} className="border border-black rounded-xl p-4 bg-white space-y-3 shadow-xs">
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-sm text-gray-900 dark:text-white">
+              <span className="font-bold text-sm text-black">
                 Soft Skill #{index + 1}
               </span>
               <button
-                onClick={() => setSoftSkillsData(softSkillsData.filter((_, i) => i !== index))}
-                className="text-red-600 hover:text-red-700 text-xs font-medium"
+                onClick={async () => {
+                  const target = softSkillsData[index];
+                  setSoftSkillsData(softSkillsData.filter((_, i) => i !== index));
+                  if (target && target.id && !target.id.startsWith('temp-')) {
+                    try {
+                      await skillsApi.removeSoft(target.id);
+                      setMessage({ type: 'success', text: 'Soft skill removed successfully!' });
+                    } catch (err) {
+                      setMessage({ type: 'error', text: `Failed to delete soft skill: ${err instanceof Error ? err.message : 'Unknown error'}` });
+                    }
+                  }
+                }}
+                className="text-red-600 hover:text-red-700 text-xs font-semibold px-2 py-1 bg-red-50 rounded-md"
               >
                 Remove
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                <label className="block text-xs font-semibold text-black mb-1">Name</label>
                 <input
                   type="text"
                   value={skill.name}
@@ -534,11 +424,11 @@ export default function AdminSkills() {
                     updated[index] = { ...skill, name: e.target.value };
                     setSoftSkillsData(updated);
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-black rounded-lg text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                <label className="block text-xs font-semibold text-black mb-1">Description</label>
                 <input
                   type="text"
                   value={skill.description}
@@ -547,7 +437,7 @@ export default function AdminSkills() {
                     updated[index] = { ...skill, description: e.target.value };
                     setSoftSkillsData(updated);
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-black rounded-lg text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -564,15 +454,15 @@ export default function AdminSkills() {
     description: string
   ) => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
+          <h3 className="text-lg font-bold text-black">{title}</h3>
           <p className="text-sm text-gray-500">{description}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setItems([...items, ''])}
-            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Item
@@ -580,7 +470,7 @@ export default function AdminSkills() {
           <button
             onClick={handleSaveOtherTabs}
             disabled={saving}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm font-semibold shadow-xs"
           >
             <Save className="w-4 h-4" />
             Save List
@@ -599,12 +489,13 @@ export default function AdminSkills() {
                 updated[index] = e.target.value;
                 setItems(updated);
               }}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-2 border border-black rounded-lg text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400"
               placeholder="Enter item name..."
             />
             <button
               onClick={() => setItems(items.filter((_, i) => i !== index))}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Remove item"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -617,7 +508,7 @@ export default function AdminSkills() {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto space-y-6 p-4 sm:p-6">
-        <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-gray-200 dark:border-neutral-800 p-12 text-center shadow-sm">
+        <div className="bg-white rounded-2xl border border-black p-12 text-center shadow-xs">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600" />
           <p className="mt-3 text-sm text-gray-500">Loading skills data...</p>
         </div>
@@ -626,24 +517,21 @@ export default function AdminSkills() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-4 sm:p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div className="max-w-6xl mx-auto space-y-6 p-4 sm:p-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Skills Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-black">Skills Management</h1>
+          <p className="text-gray-500 text-sm mt-1">
             Single source of truth for technical stack, soft skills, and learning items across the website.
           </p>
         </div>
-      </div>
 
       {/* Message Banner */}
       {message && (
         <div
           className={`flex items-center gap-3 p-4 rounded-xl text-sm border ${
             message.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900'
-              : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border-rose-200'
           }`}
         >
           {message.type === 'success' ? (
@@ -659,15 +547,15 @@ export default function AdminSkills() {
       )}
 
       {/* Tab Navigation */}
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-gray-200/80 dark:border-neutral-800 shadow-sm overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-neutral-800 bg-gray-50/50 dark:bg-neutral-800/30 p-1.5 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-black shadow-xs overflow-hidden">
+        <div className="border-b border-black bg-white p-1.5 overflow-x-auto">
           <nav className="flex gap-1 min-w-max">
             <button
               onClick={() => setActiveTab('skills')}
               className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 activeTab === 'skills'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Technical Stack ({skillsData.length})
@@ -676,8 +564,8 @@ export default function AdminSkills() {
               onClick={() => setActiveTab('soft')}
               className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 activeTab === 'soft'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Soft Skills ({softSkillsData.length})
@@ -686,8 +574,8 @@ export default function AdminSkills() {
               onClick={() => setActiveTab('learning')}
               className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 activeTab === 'learning'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Currently Learning ({learningData.length})
@@ -696,8 +584,8 @@ export default function AdminSkills() {
               onClick={() => setActiveTab('exploring')}
               className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 activeTab === 'exploring'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Also Exploring ({exploringData.length})
@@ -729,9 +617,9 @@ export default function AdminSkills() {
       {/* Add / Edit Skill Modal */}
       {isModalOpen && editingSkill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-lg bg-white dark:bg-neutral-900 rounded-2xl border border-gray-200 dark:border-neutral-800 shadow-2xl overflow-hidden my-8">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-neutral-800">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+          <div className="relative w-full max-w-lg bg-white rounded-2xl border border-black shadow-2xl overflow-hidden my-8">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-black">
                 {editingSkill.id ? 'Edit Skill' : 'Add New Skill'}
               </h3>
               <button
@@ -744,9 +632,8 @@ export default function AdminSkills() {
 
             <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Name */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-xs font-semibold text-black mb-1">
                     Skill Name *
                   </label>
                   <input
@@ -754,13 +641,12 @@ export default function AdminSkills() {
                     value={editingSkill.name || ''}
                     onChange={(e) => setEditingSkill({ ...editingSkill, name: e.target.value })}
                     placeholder="e.g. React, TypeScript, Python"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 border border-black rounded-lg text-sm text-black bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-gray-400"
                   />
                 </div>
 
-                {/* Category */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-xs font-semibold text-black mb-1">
                     Category *
                   </label>
                   <div className="space-y-2">
@@ -774,7 +660,7 @@ export default function AdminSkills() {
                           setEditingSkill({ ...editingSkill, category: e.target.value });
                         }
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="w-full px-3 py-2 border border-black rounded-lg text-sm text-black bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     >
                       {STANDARD_CATEGORIES.map((cat) => (
                         <option key={cat} value={cat}>
@@ -790,22 +676,21 @@ export default function AdminSkills() {
                         placeholder="Enter custom category..."
                         value={customCategoryInput}
                         onChange={(e) => setCustomCategoryInput(e.target.value)}
-                        className="w-full px-3 py-2 border border-blue-400 rounded-lg text-sm bg-blue-50/30 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="w-full px-3 py-2 border border-blue-400 rounded-lg text-sm text-black bg-blue-50/30 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Level */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-xs font-semibold text-black mb-1">
                   Level (Optional)
                 </label>
                 <select
                   value={editingSkill.level || 'Intermediate'}
                   onChange={(e) => setEditingSkill({ ...editingSkill, level: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-black rounded-lg text-sm text-black bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   {STANDARD_LEVELS.map((lvl) => (
                     <option key={lvl} value={lvl}>
@@ -815,9 +700,8 @@ export default function AdminSkills() {
                 </select>
               </div>
 
-              {/* Description */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-xs font-semibold text-black mb-1">
                   Description (Optional)
                 </label>
                 <textarea
@@ -825,45 +709,33 @@ export default function AdminSkills() {
                   value={editingSkill.description || ''}
                   onChange={(e) => setEditingSkill({ ...editingSkill, description: e.target.value })}
                   placeholder="Brief summary of how you use this skill..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                  className="w-full px-3 py-2 border border-black rounded-lg text-sm text-black bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none placeholder:text-gray-400"
                 />
               </div>
 
-              {/* Switches */}
-              <div className="pt-3 border-t border-gray-100 dark:border-neutral-800 grid grid-cols-3 gap-3">
-                <label className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 cursor-pointer">
+              <div className="pt-3 border-t border-gray-200 grid grid-cols-2 gap-3">
+                <label className="flex items-center gap-2 p-3 rounded-lg bg-white border border-black cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editingSkill.is_active !== false}
                     onChange={(e) => setEditingSkill({ ...editingSkill, is_active: e.target.checked })}
                     className="rounded text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-xs font-medium text-gray-900 dark:text-white">Active</span>
+                  <span className="text-xs font-semibold text-black">Active</span>
                 </label>
 
-                <label className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 cursor-pointer">
+                <label className="flex items-center gap-2 p-3 rounded-lg bg-white border border-black cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editingSkill.show_on_home === true}
                     onChange={(e) => setEditingSkill({ ...editingSkill, show_on_home: e.target.checked })}
                     className="rounded text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-xs font-medium text-gray-900 dark:text-white">Show Home</span>
-                </label>
-
-                <label className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editingSkill.is_featured === true}
-                    onChange={(e) => setEditingSkill({ ...editingSkill, is_featured: e.target.checked })}
-                    className="rounded text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-xs font-medium text-gray-900 dark:text-white">Featured</span>
+                  <span className="text-xs font-semibold text-black">Show on Home</span>
                 </label>
               </div>
 
-              {/* Live Preview Card */}
-              <div className="pt-4 border-t border-gray-100 dark:border-neutral-800">
+              <div className="pt-4 border-t border-gray-200">
                 <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                   Live Card Preview
                 </p>
@@ -877,7 +749,6 @@ export default function AdminSkills() {
                       : editingSkill.category || 'Category',
                     level: editingSkill.level || 'Intermediate',
                     is_active: editingSkill.is_active,
-                    is_featured: editingSkill.is_featured,
                     show_on_home: editingSkill.show_on_home,
                     order_index: 0,
                   }}
@@ -885,17 +756,17 @@ export default function AdminSkills() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 dark:border-neutral-800 bg-gray-50/50 dark:bg-neutral-800/40">
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-white">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-black"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveModalSkill}
                 disabled={saving}
-                className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-xs disabled:opacity-50"
               >
                 {saving ? (
                   <>
@@ -915,21 +786,21 @@ export default function AdminSkills() {
       {/* Delete Confirmation Modal */}
       {deletingSkill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="relative w-full max-w-md bg-white dark:bg-neutral-900 rounded-2xl border border-gray-200 dark:border-neutral-800 shadow-2xl p-6 space-y-4">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-black shadow-2xl p-6 space-y-4">
             <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
               <Trash2 className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Delete Skill?</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Are you sure you want to delete <span className="font-semibold text-gray-900 dark:text-white">"{deletingSkill.name}"</span>?
+              <h3 className="text-lg font-bold text-black">Delete Skill?</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Are you sure you want to delete <span className="font-semibold text-black">"{deletingSkill.name}"</span>?
                 This action will permanently remove it from the portfolio.
               </p>
             </div>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setDeletingSkill(null)}
-                className="flex-1 py-2.5 border border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-gray-300 font-medium text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                className="flex-1 py-2.5 border border-black text-black font-medium text-sm rounded-xl hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>

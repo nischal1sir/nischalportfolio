@@ -4,7 +4,7 @@ import { useAdmin } from './AdminContext';
 import {
   Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit,
   Upload, Eye, EyeOff, LayoutGrid, Layers, Crop, MoveLeft, MoveRight,
-  Maximize2, Minimize2, Sparkles
+  Maximize2, Minimize2, Images
 } from 'lucide-react';
 import { galleryApi } from '../../services/adminApi';
 import type { GalleryImage, GalleryShape } from '../../types';
@@ -267,7 +267,7 @@ export default function AdminGallery() {
             activeTab === 'about' ? 'bg-blue-600 text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          <Sparkles className="w-4 h-4" />
+          <Images className="w-4 h-4" />
           About Page Preview (Select 3)
           <span className="ml-1.5 px-2 py-0.5 text-xs bg-white/20 rounded-full">{aboutPreviewIds.length}/3</span>
         </button>
@@ -596,7 +596,7 @@ export default function AdminGallery() {
           <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-gray-200 shadow-xs space-y-4">
             <div>
               <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-600" />
+                <Images className="w-4 h-4 text-blue-600" />
                 Select 3 Images for About Page Preview
               </h2>
               <p className="text-xs text-gray-500 mt-1">

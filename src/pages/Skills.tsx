@@ -57,7 +57,7 @@ export default function Skills() {
 
   if (allLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-900">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -73,15 +73,15 @@ export default function Skills() {
 
       <PageSection className="pb-12">
         {/* Dynamic Category & Search Filter Bar */}
-        <div className="mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#fafafa] dark:bg-neutral-900 border border-[#ebebeb] dark:border-neutral-800">
+        <div className="mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-black shadow-xs">
           {/* Category Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
             <button
               onClick={() => setSelectedCategory('All')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                 selectedCategory === 'All'
-                  ? 'bg-[#171717] text-white dark:bg-white dark:text-black shadow-sm'
-                  : 'bg-white text-[#4d4d4d] border border-[#ebebeb] hover:bg-gray-100 dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-700'
+                  ? 'bg-white text-black border-2 border-black shadow-xs'
+                  : 'bg-white text-[#4d4d4d] border border-gray-300 hover:border-black'
               }`}
             >
               All Stack ({skills.length})
@@ -91,10 +91,10 @@ export default function Skills() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[#171717] text-white dark:bg-white dark:text-black shadow-sm'
-                    : 'bg-white text-[#4d4d4d] border border-[#ebebeb] hover:bg-gray-100 dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-700'
+                    ? 'bg-white text-black border-2 border-black shadow-xs'
+                    : 'bg-white text-[#4d4d4d] border border-gray-300 hover:border-black'
                 }`}
               >
                 {cat}
@@ -104,22 +104,22 @@ export default function Skills() {
 
           {/* Search Box */}
           <div className="relative min-w-[220px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#888888]" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               type="text"
               placeholder="Search stack or tool..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 text-xs bg-white dark:bg-neutral-800 border border-[#ebebeb] dark:border-neutral-700 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#171717] dark:text-white"
+              className="w-full pl-9 pr-4 py-1.5 text-xs bg-white border border-black rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
         </div>
 
         {/* Skill Cards Grid */}
         {filteredSkills.length === 0 ? (
-          <div className="py-16 text-center text-[#888888]">
-            <p className="text-sm font-medium mb-1">No matching skills found</p>
-            <p className="text-xs text-[#a1a1a1]">Try adjusting your search query or category filter.</p>
+          <div className="py-16 text-center text-gray-500">
+            <p className="text-sm font-semibold mb-1">No matching skills found</p>
+            <p className="text-xs text-gray-400">Try adjusting your search query or category filter.</p>
           </div>
         ) : (
           <SkillCategories skills={filteredSkills} />
@@ -139,9 +139,9 @@ export default function Skills() {
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-5">
             {softSkills.map((s) => (
               <Reveal key={s.id || s.name} delay={80}>
-                <div className="p-5 sm:p-6 border border-[#ebebeb] dark:border-neutral-800 rounded-2xl bg-[#fafafa] dark:bg-neutral-900">
-                  <h3 className="text-[16px] font-semibold text-[#171717] dark:text-white mb-2">{s.name}</h3>
-                  <p className="text-[14px] text-[#4d4d4d] dark:text-gray-300 leading-relaxed">{s.description}</p>
+                <div className="p-5 sm:p-6 border border-black rounded-2xl bg-white shadow-xs">
+                  <h3 className="text-[16px] font-bold text-black mb-2">{s.name}</h3>
+                  <p className="text-[14px] text-gray-700 leading-relaxed">{s.description}</p>
                 </div>
               </Reveal>
             ))}
@@ -189,7 +189,7 @@ export default function Skills() {
         </PageSection>
       )}
 
-      <section className="py-12 bg-[#fafafa] dark:bg-neutral-900 border-t border-[#ebebeb] dark:border-neutral-800">
+      <section className="py-12 bg-white border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-12">
           <Progression />
         </div>

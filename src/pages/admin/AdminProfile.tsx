@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { useAdmin } from './AdminContext';
-import { Save, Loader2, AlertCircle, CheckCircle, Upload, FileText, Trash2, ExternalLink, ArrowUp, ArrowDown, Plus, RotateCcw, Heart, Sparkles } from 'lucide-react';
+import { Save, Loader2, AlertCircle, CheckCircle, Upload, FileText, Trash2, ExternalLink, ArrowUp, ArrowDown, Plus, RotateCcw, Heart } from 'lucide-react';
 import { profileApi } from '../../services/adminApi';
 import type { Profile, PhilosophyItem, ProgressionItem } from '../../types';
 
@@ -510,7 +510,7 @@ export default function AdminProfile() {
                     key={idx}
                     className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-800 text-gray-200 border border-gray-700 rounded-full text-xs font-medium"
                   >
-                    <Sparkles className="w-3 h-3 text-blue-400" />
+                    <Heart className="w-3 h-3 text-red-400 fill-red-400/30" />
                     {item}
                   </span>
                 ))}

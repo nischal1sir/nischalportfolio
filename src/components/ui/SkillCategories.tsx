@@ -13,7 +13,7 @@ export function SkillGroup({
 }) {
   const body = (
     <div className="space-y-4">
-      <h3 className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-neutral-800 pb-2">
+      <h3 className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-gray-500 border-b border-gray-200 pb-2">
         {label} ({skills.length})
       </h3>
       {skills.length === 0 ? (

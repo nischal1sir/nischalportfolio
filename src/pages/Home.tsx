@@ -61,7 +61,7 @@ export default function Home() {
 
   if (allLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -69,7 +69,7 @@ export default function Home() {
 
   if (profileError || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Unable to load profile</h1>
           <p className="text-gray-500">Please check your Supabase configuration.</p>
@@ -184,8 +184,8 @@ export default function Home() {
             const hasMore = categorySkills.length > 3;
             return (
               <Reveal key={categoryLabel} delay={60 * (index + 1)}>
-                <div className="p-5 border border-[#ebebeb] dark:border-neutral-800 rounded-2xl bg-[#fafafa] dark:bg-neutral-900">
-                  <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-semibold mb-4 text-[#4d4d4d] dark:text-gray-400">
+                <div className="p-5 border border-black rounded-2xl bg-white shadow-xs">
+                  <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-bold mb-4 text-black">
                     {categoryLabel}
                   </h3>
                   <div className="flex flex-wrap gap-2 items-center">
@@ -195,7 +195,7 @@ export default function Home() {
                     {hasMore && (
                       <Link
                         to="/skills"
-                        className="px-2.5 py-1 text-xs font-semibold rounded-md bg-gray-200/70 hover:bg-gray-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 transition-colors inline-flex items-center gap-1"
+                        className="px-2.5 py-1 text-xs font-bold rounded-md bg-white border border-black text-black transition-colors inline-flex items-center gap-1"
                         title="View all skills in this category"
                       >
                         ...
@@ -210,8 +210,8 @@ export default function Home() {
 
         {softSkills.length > 0 && (
           <Reveal delay={180}>
-            <div className="mt-5 p-5 border border-[#ebebeb] dark:border-neutral-800 rounded-2xl bg-[#fafafa] dark:bg-neutral-900">
-              <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-semibold mb-4 text-[#4d4d4d] dark:text-gray-400">
+            <div className="mt-5 p-5 border border-black rounded-2xl bg-white shadow-xs">
+              <h3 className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase font-bold mb-4 text-black">
                 Soft skills
               </h3>
               <div className="flex flex-wrap gap-2 items-center">
@@ -221,7 +221,7 @@ export default function Home() {
                 {softSkills.length > 3 && (
                   <Link
                     to="/skills"
-                    className="px-2.5 py-1 text-xs font-semibold rounded-md bg-gray-200/70 hover:bg-gray-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 transition-colors"
+                    className="px-2.5 py-1 text-xs font-bold rounded-md bg-white border border-black text-black transition-colors"
                     title="View all soft skills on skills page"
                   >
                     ...
@@ -258,7 +258,18 @@ export default function Home() {
               </Link>
             </div>
           ) : featuredProjects.length > 0 ? (
-            featuredProjects.map((p) => <ProjectCard key={p.id} project={p} />)
+            <>
+              {featuredProjects.map((p) => <ProjectCard key={p.id} project={p} />)}
+              <div className="col-span-full text-center mt-6">
+                <Link
+                  to="/projects"
+                  className="inline-flex items-center gap-2 text-[14px] font-medium text-[#0070f3] hover:text-[#0761d1] transition-colors"
+                >
+                  View All Projects
+                  <ArrowRightIcon size={16} />
+                </Link>
+              </div>
+            </>
           ) : (
             <div className="col-span-full text-center py-12">
               <p className="text-[14px] text-[#888888] mb-4">
