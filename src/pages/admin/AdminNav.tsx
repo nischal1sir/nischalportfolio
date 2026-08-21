@@ -90,8 +90,14 @@ export default function AdminNav() {
   const saveEdit = async () => {
     if (!editingId) return;
     try {
-      const updated = await navApi.update(editingId, editForm);
-      setNavLinksData(navLinksData.map(l => l.id === editingId ? updated : l));
+      const { id, created_at, updated_at, ...rest } = editForm as any;
+      if (editingId.startsWith('temp-')) {
+        const created = await navApi.create(rest);
+        setNavLinksData(navLinksData.map(l => l.id === editingId ? created : l));
+      } else {
+        const updated = await navApi.update(editingId, rest);
+        setNavLinksData(navLinksData.map(l => l.id === editingId ? updated : l));
+      }
       setEditingId(null);
       setEditForm({});
       setMessage({ type: 'success', text: 'Link updated successfully!' });
@@ -103,7 +109,8 @@ export default function AdminNav() {
   const saveContactEdit = async () => {
     if (!contactNavData) return;
     try {
-      const updated = await navApi.update(contactNavData.id, editForm);
+      const { id, created_at, updated_at, ...rest } = editForm as any;
+      const updated = await navApi.update(contactNavData.id, rest);
       setContactNavData(updated);
       setEditingContact(false);
       setEditForm({});

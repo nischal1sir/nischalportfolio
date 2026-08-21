@@ -519,6 +519,10 @@ export const socialsApi = {
       .eq('id', id);
     if (error) throw new Error(error.message);
   },
+
+  async reorder(items: { id: string; order_index: number }[]): Promise<void> {
+    return reorderItems('social_links', items);
+  },
 };
 
 // ============================================================================

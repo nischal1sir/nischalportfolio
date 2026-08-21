@@ -200,17 +200,18 @@ export default function Contact() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {socials.map((s) => {
-                  const Icon = socialIconLib[s.icon];
+                  const iconKey = (s.icon || '').toLowerCase();
+                  const Icon = socialIconLib[iconKey];
                   return (
                     <a
-                      key={s.label}
+                      key={s.id || s.label || s.href}
                       href={s.href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-3.5 h-9 rounded-full border border-[#ebebeb] bg-white text-[13px] text-[#4d4d4d] hover:bg-[#171717] hover:text-white hover:border-[#171717] transition-colors"
                     >
                       {Icon ? <Icon size={15} /> : null}
-                      {s.label}
+                      {s.label || s.icon}
                     </a>
                   );
                 })}

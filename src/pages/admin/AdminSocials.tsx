@@ -3,6 +3,7 @@ import { useAdmin } from './AdminContext';
 import { Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit } from 'lucide-react';
 import { socialsApi } from '../../services/adminApi';
 import type { SocialLink } from '../../types';
+import { DragDropList } from '../../components/admin/DragDropList';
 
 const iconOptions = [
   'github', 'linkedin', 'x', 'twitter', 'instagram', 'facebook', 'youtube',
@@ -37,18 +38,29 @@ export default function AdminSocials() {
     }
   };
 
+  const handleReorder = async (newItems: SocialLink[]) => {
+    setSocialsData(newItems);
+    try {
+      await socialsApi.reorder(newItems.map((item, idx) => ({ id: item.id, order_index: idx })));
+      setMessage({ type: 'success', text: 'Social links order updated successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to save order: ${err instanceof Error ? err.message : 'Unknown error'}` });
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setMessage(null);
     try {
       await Promise.all(
-        socialsData.map(async (social) => {
-          const { id, created_at, updated_at, ...rest } = social;
+        socialsData.map(async (social, index) => {
+          const { id, created_at, updated_at, ...rest } = social as any;
+          const payload = { ...rest, order_index: index };
           if (id.startsWith('temp-')) {
-            const created = await socialsApi.create(rest);
+            const created = await socialsApi.create(payload);
             setSocialsData(prev => prev.map(s => s.id === social.id ? created : s));
           } else {
-            await socialsApi.update(id, rest);
+            await socialsApi.update(id, payload);
           }
         })
       );
@@ -73,8 +85,14 @@ export default function AdminSocials() {
   const saveEdit = async () => {
     if (!editingId) return;
     try {
-      const updated = await socialsApi.update(editingId, editForm);
-      setSocialsData(socialsData.map(s => s.id === editingId ? updated : s));
+      const { id, created_at, updated_at, ...rest } = editForm as any;
+      if (editingId.startsWith('temp-')) {
+        const created = await socialsApi.create(rest);
+        setSocialsData(socialsData.map(s => s.id === editingId ? created : s));
+      } else {
+        const updated = await socialsApi.update(editingId, rest);
+        setSocialsData(socialsData.map(s => s.id === editingId ? updated : s));
+      }
       setEditingId(null);
       setEditForm({});
       setMessage({ type: 'success', text: 'Social link updated successfully!' });
@@ -171,11 +189,13 @@ export default function AdminSocials() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {socialsData.map((social) => {
+      <DragDropList
+        items={socialsData}
+        onReorder={handleReorder}
+        renderItem={(social) => {
           const isEditing = editingId === social.id;
           return (
-            <div key={social.id} className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
+            <div className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
               <div className="p-4 border-b border-gray-200 bg-gray-50">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -257,8 +277,8 @@ export default function AdminSocials() {
               )}
             </div>
           );
-        })}
-      </div>
+        }}
+      />
 
       {socialsData.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200">

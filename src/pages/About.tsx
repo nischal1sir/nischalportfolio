@@ -67,11 +67,7 @@ export default function About() {
   const { items: exploringItems, loading: exploringLoading } = useExploringItems();
   const { gallery = [], loading: galleryLoading } = useGallery();
 
-  const [activeCategory, setActiveCategory] = useState('All');
   const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
-
-  const categories = ['All', ...Array.from(new Set(gallery.map(g => g.category).filter(Boolean)))];
-  const filteredGallery = activeCategory === 'All' ? gallery : gallery.filter(g => g.category === activeCategory);
 
   const allLoading = profileLoading || philosophyLoading || educationLoading || learningLoading || exploringLoading || galleryLoading;
 
@@ -270,30 +266,9 @@ export default function About() {
             />
           </Reveal>
 
-          {/* Category Tabs */}
-          {categories.length > 1 && (
-            <Reveal delay={60}>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                      activeCategory === cat
-                        ? 'bg-[#0070f3] text-white shadow-sm'
-                        : 'bg-white text-gray-600 border border-[#ebebeb] hover:border-gray-300'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </Reveal>
-          )}
-
           {/* Gallery Grid */}
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredGallery.map((img, i) => (
+            {gallery.map((img, i) => (
               <Reveal key={img.id} delay={i * 60}>
                 <div
                   onClick={() => setLightboxImage(img)}

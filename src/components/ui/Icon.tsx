@@ -260,7 +260,12 @@ export const socialIconLib: Record<string, (p: IconProps) => React.ReactElement>
   github: GithubIcon,
   linkedin: LinkedinIcon,
   x: XSocialIcon,
+  twitter: XSocialIcon,
   instagram: InstagramIcon,
+  mail: MailIcon,
+  code: CodeIcon,
+  'file-text': FileTextIcon,
+  'external-link': ExternalLinkIcon,
 };
 
 export const navIconLib: Record<string, (p: IconProps) => React.ReactElement> = {

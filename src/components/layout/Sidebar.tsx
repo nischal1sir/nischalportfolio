@@ -5,6 +5,7 @@ import {
   socialIconLib,
   navIconLib,
   FileTextIcon,
+  ExternalLinkIcon,
 } from '../ui/Icon';
 
 export default function Sidebar() {
@@ -84,14 +85,16 @@ export default function Sidebar() {
 
         <div className="flex items-center justify-center gap-2 mt-3">
           {socials.map((social) => {
-            const Icon = socialIconLib[social.icon];
+            const iconKey = (social.icon || '').toLowerCase();
+            const Icon = socialIconLib[iconKey] || ExternalLinkIcon;
             return (
               <a
-                key={social.label}
+                key={social.id || social.label || social.href}
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={social.label}
+                aria-label={social.label || social.icon}
+                title={social.label}
                 className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-[#ebebeb] text-[#888888] hover:bg-[#171717] hover:text-white hover:border-[#171717] transition-colors"
               >
                 {Icon ? <Icon size={15} /> : null}

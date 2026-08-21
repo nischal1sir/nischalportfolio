@@ -519,7 +519,7 @@ export function useSocials() {
         if (error) {
           setError(error.message);
           setSocials(defaultSocials);
-        } else if (!data) {
+        } else if (!data || data.length === 0) {
           setSocials(defaultSocials);
         } else {
           setSocials(data);

@@ -57,14 +57,16 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-2">
               {socials.map((s) => {
-                const Icon = socialIconLib[s.icon];
+                const iconKey = (s.icon || '').toLowerCase();
+                const Icon = socialIconLib[iconKey];
                 return (
                   <a
-                    key={s.label}
+                    key={s.id || s.label || s.href}
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={s.label}
+                    aria-label={s.label || s.icon}
+                    title={s.label}
                     className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-[#ebebeb] text-[#888888] hover:bg-[#171717] hover:text-white hover:border-[#171717] transition-colors"
                   >
                     {Icon ? <Icon size={15} /> : null}
