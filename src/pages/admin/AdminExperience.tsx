@@ -3,6 +3,7 @@ import { useAdmin } from './AdminContext';
 import { Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit } from 'lucide-react';
 import { experiencesApi } from '../../services/adminApi';
 import type { Experience } from '../../types';
+import { DragDropList } from '../../components/admin/DragDropList';
 
 export default function AdminExperience() {
   const { isAuthenticated } = useAdmin();
@@ -29,6 +30,16 @@ export default function AdminExperience() {
       setMessage({ type: 'error', text: `Failed to load: ${err instanceof Error ? err.message : 'Unknown error'}` });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReorder = async (newItems: Experience[]) => {
+    setExperiencesData(newItems);
+    try {
+      await experiencesApi.reorder(newItems.map((item, idx) => ({ id: item.id, order_index: idx })));
+      setMessage({ type: 'success', text: 'Experience order updated successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to save order: ${err instanceof Error ? err.message : 'Unknown error'}` });
     }
   };
 
@@ -215,11 +226,13 @@ export default function AdminExperience() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {experiencesData.map((exp) => {
+      <DragDropList
+        items={experiencesData}
+        onReorder={handleReorder}
+        renderItem={(exp) => {
           const isEditing = editingId === exp.id;
           return (
-            <div key={exp.id} className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
+            <div className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
               <div className="p-4 border-b border-gray-200 bg-gray-50">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
@@ -390,8 +403,8 @@ export default function AdminExperience() {
               )}
             </div>
           );
-        })}
-      </div>
+        }}
+      />
 
       {experiencesData.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200">

@@ -1,5 +1,5 @@
 import MorphButton from '../components/morphButton';
-import { profile } from '../data/profile';
+import { useProfile } from '../hooks/usePortfolioData';
 import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function Resume() {
@@ -8,6 +8,10 @@ export default function Resume() {
     description: 'Download my resume / CV. The formal version — less fun, more facts.',
     path: '/resume',
   });
+
+  const { profile } = useProfile();
+  const resumeUrl = profile?.resume_url || '/resume.pdf';
+  const locationText = profile?.location ? profile.location.split(',')[0] : 'Nepal';
 
   return (
     <section className="flex flex-col items-center justify-center px-4 sm:px-6 min-h-[60vh] py-16">
@@ -20,12 +24,12 @@ export default function Resume() {
           The formal version of me. Less fun, more facts.
         </p>
 
-        <MorphButton href={profile.resumeUrl} download="Nischal_Rai_Resume.pdf">
+        <MorphButton href={resumeUrl} download="Nischal_Rai_Resume.pdf">
           Download Resume
         </MorphButton>
 
         <p className="mt-6 text-[11px] text-[#aaa] tracking-wide">
-          PDF &bull; Last updated August 2026
+          PDF &bull; Dynamic Database Resume
         </p>
       </div>
 
@@ -35,7 +39,7 @@ export default function Resume() {
           <span className="text-[10px] tracking-[0.15em] uppercase text-[#888]">Primary Stack</span>
         </div>
         <div className="text-center border-t border-[#ddd] pt-6">
-          <span className="block text-[24px] sm:text-[28px] font-light text-[#0a0a0a]">Nepal</span>
+          <span className="block text-[24px] sm:text-[28px] font-light text-[#0a0a0a]">{locationText}</span>
           <span className="text-[10px] tracking-[0.15em] uppercase text-[#888]">Based In</span>
         </div>
         <div className="text-center border-t border-[#ddd] pt-6">

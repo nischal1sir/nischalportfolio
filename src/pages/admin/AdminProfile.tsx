@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { ChangeEvent } from 'react';
 import { useAdmin } from './AdminContext';
-import { Save, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Save, Loader2, AlertCircle, CheckCircle, Upload, FileText, Trash2, ExternalLink } from 'lucide-react';
 import { profileApi } from '../../services/adminApi';
 import type { Profile, PhilosophyItem, ProgressionItem } from '../../types';
 
@@ -11,6 +12,7 @@ export default function AdminProfile() {
   const [progressionItems, setProgressionItems] = useState<ProgressionItem[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploadingResume, setUploadingResume] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -35,6 +37,40 @@ export default function AdminProfile() {
       setMessage({ type: 'error', text: `Failed to load: ${err instanceof Error ? err.message : 'Unknown error'}` });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResumeUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingResume(true);
+    setMessage(null);
+    try {
+      if (data.resume_url) {
+        await profileApi.deleteResume(data.resume_url);
+      }
+      const newUrl = await profileApi.uploadResume(file);
+      setData(prev => ({ ...prev, resume_url: newUrl }));
+      await profileApi.update({ ...data, resume_url: newUrl });
+      setMessage({ type: 'success', text: 'Resume uploaded and saved successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to upload resume: ${err instanceof Error ? err.message : 'Unknown error'}` });
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
+  const handleResumeDelete = async () => {
+    if (!confirm('Are you sure you want to delete the active resume file?')) return;
+    try {
+      if (data.resume_url) {
+        await profileApi.deleteResume(data.resume_url);
+      }
+      setData(prev => ({ ...prev, resume_url: '' }));
+      await profileApi.update({ ...data, resume_url: '' });
+      setMessage({ type: 'success', text: 'Resume deleted successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to delete resume: ${err instanceof Error ? err.message : 'Unknown error'}` });
     }
   };
 
@@ -240,15 +276,80 @@ export default function AdminProfile() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            <div className="md:col-span-2">
-              <label htmlFor="resumeUrl" className="block text-sm font-medium text-gray-700 mb-1">Resume URL</label>
-              <input
-                id="resumeUrl"
-                type="text"
-                value={data.resume_url || ''}
-                onChange={(e) => setData({ ...data, resume_url: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+            <div className="md:col-span-2 space-y-3 pt-2 border-t border-gray-200">
+              <label className="block text-sm font-medium text-gray-700">Resume File Management</label>
+              
+              {data.resume_url ? (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-lg flex items-center justify-center shrink-0">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">Active Resume File</p>
+                      <a
+                        href={data.resume_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1 mt-0.5 truncate max-w-md"
+                      >
+                        {data.resume_url}
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg text-xs font-medium cursor-pointer transition-colors">
+                      {uploadingResume ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                      {uploadingResume ? 'Replacing...' : 'Replace'}
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleResumeUpload}
+                        disabled={uploadingResume}
+                        className="hidden"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleResumeDelete}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete File
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-700 mb-1">No resume file currently uploaded</p>
+                  <p className="text-xs text-gray-500 mb-4">Upload a PDF or Word document to make your resume downloadable on the portfolio</p>
+                  <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg text-sm font-medium cursor-pointer transition-colors">
+                    {uploadingResume ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {uploadingResume ? 'Uploading...' : 'Upload Resume File'}
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleResumeUpload}
+                      disabled={uploadingResume}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+
+              <div className="pt-2">
+                <label htmlFor="resumeUrl" className="block text-xs font-medium text-gray-500 mb-1">Direct Resume URL (Fallback / External Link)</label>
+                <input
+                  id="resumeUrl"
+                  type="text"
+                  value={data.resume_url || ''}
+                  onChange={(e) => setData({ ...data, resume_url: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="https://..."
+                />
+              </div>
             </div>
           </div>
         </section>

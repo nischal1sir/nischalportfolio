@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
+import type { ChangeEvent } from 'react';
 import { useAdmin } from './AdminContext';
-import { Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit, Image as ImageIcon } from 'lucide-react';
+import { Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit, Image as ImageIcon, Upload } from 'lucide-react';
 import { galleryApi } from '../../services/adminApi';
 import type { GalleryImage } from '../../types';
+import { DragDropList } from '../../components/admin/DragDropList';
 
 export default function AdminGallery() {
   const { isAuthenticated } = useAdmin();
   const [galleryData, setGalleryData] = useState<GalleryImage[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<GalleryImage>>({});
@@ -30,6 +33,33 @@ export default function AdminGallery() {
       setMessage({ type: 'error', text: `Failed to load: ${err instanceof Error ? err.message : 'Unknown error'}` });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReorder = async (newItems: GalleryImage[]) => {
+    setGalleryData(newItems);
+    try {
+      await galleryApi.reorder(newItems.map((item, idx) => ({ id: item.id, order_index: idx })));
+      setMessage({ type: 'success', text: 'Gallery order updated successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to save order: ${err instanceof Error ? err.message : 'Unknown error'}` });
+    }
+  };
+
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setMessage(null);
+    try {
+      const url = await galleryApi.uploadImage(file);
+      setEditForm(prev => ({ ...prev, image_url: url }));
+      setPreviewUrl(url);
+      setMessage({ type: 'success', text: 'Image uploaded successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}` });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -192,11 +222,13 @@ export default function AdminGallery() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {galleryData.map((image) => {
+      <DragDropList
+        items={galleryData}
+        onReorder={handleReorder}
+        renderItem={(image) => {
           const isEditing = editingId === image.id;
           return (
-            <div key={image.id} className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
+            <div className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
               <div className="p-4 border-b border-gray-200 bg-gray-50">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -260,7 +292,20 @@ export default function AdminGallery() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Image Upload / URL</label>
+                      <div className="flex items-center gap-2 mb-2">
+                        <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-sm cursor-pointer font-medium transition-colors">
+                          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {uploading ? 'Uploading...' : 'Upload Image'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
                       <input
                         type="url"
                         value={editForm.image_url || ''}
@@ -365,8 +410,8 @@ export default function AdminGallery() {
               )}
             </div>
           );
-        })}
-      </div>
+        }}
+      />
 
       {galleryData.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200">

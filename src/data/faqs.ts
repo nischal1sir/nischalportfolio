@@ -21,19 +21,13 @@ export const faqs: FaqItem[] = [
     id: 'faq-3',
     question: 'How do you make sure websites work on all devices?',
     answer:
-      'I build mobile-first using responsive grids, flexible typography and Tailwind breakpoints. Every site I deliver is tested across small phones, tablets, laptops and large desktop screens to avoid horizontal scrolling.',
+      'I build mobile-first using responsive grids, flexible typography and Tailwind breakpoints. Every site I deliver is tested across small phones, tablets, laptops and desktop screens to avoid horizontal scrolling.',
   },
   {
     id: 'faq-4',
     question: 'Are you open to internships?',
     answer:
       "Yes. I'm currently open to internship opportunities where I can learn from experienced developers, contribute to real projects and grow as a software developer. Reach out through the Let's Talk page.",
-  },
-  {
-    id: 'faq-5',
-    question: 'What was your experience at Youth IT?',
-    answer:
-      'I completed a frontend development internship at Youth IT in Itahari, where I worked on real client-facing interfaces, collaborated with the team using Git and code reviews, and improved UI performance and cross-browser compatibility.',
   },
   {
     id: 'faq-6',

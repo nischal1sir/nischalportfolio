@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { profile } from '../../data/profile';
-import { navLinks, contactNav } from '../../data/nav';
-import { socials } from '../../data/socials';
+import { useProfile, useNavLinks, useSocials } from '../../hooks/usePortfolioData';
 import { socialIconLib, MenuIcon, XIcon, MailIcon, FileTextIcon } from '../ui/Icon';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { profile } = useProfile();
+  const { navLinks } = useNavLinks();
+  const { socials } = useSocials();
+
+  const mainNav = navLinks.filter(n => !n.is_contact);
+  const contactNav = navLinks.find(n => n.is_contact) || { label: "Let's Talk", to: "/contact" };
 
   useEffect(() => {
     setOpen(false);
@@ -31,7 +35,7 @@ export default function Navbar() {
     <>
       <header className="lg:hidden sticky top-0 z-[60] flex items-center justify-between px-4 h-14 bg-[#fafafa]/90 backdrop-blur border-b border-[#ebebeb]">
         <Link to="/" className="font-semibold text-[14px] tracking-[-0.01em] text-[#171717]">
-          {profile.name}
+          {profile?.name || 'Nischal Rai'}
           <span className="text-[#0070f3]">.</span>
         </Link>
         <button
@@ -53,7 +57,7 @@ export default function Navbar() {
         aria-hidden={!open}
       >
         <nav className="flex flex-col gap-1 p-4 pt-6">
-          {navLinks.map((link) => (
+          {mainNav.map((link) => (
             <Link
               key={link.to}
               to={link.to}

@@ -4,6 +4,7 @@ import { Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit } from 'luc
 import { educationApi } from '../../services/adminApi';
 import type { Education } from '../../types';
 import { GraduationCap, School, BookOpen, Award, Medal } from 'lucide-react';
+import { DragDropList } from '../../components/admin/DragDropList';
 
 const iconOptions = [
   { name: 'GraduationCap', component: GraduationCap },
@@ -40,6 +41,17 @@ export default function AdminEducation() {
       setLoading(false);
     }
   };
+
+  const handleReorder = async (newItems: Education[]) => {
+    setEducationData(newItems);
+    try {
+      await educationApi.reorder(newItems.map((item, idx) => ({ id: item.id, order_index: idx })));
+      setMessage({ type: 'success', text: 'Education order updated successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to save order: ${err instanceof Error ? err.message : 'Unknown error'}` });
+    }
+  };
+
 
   const handleSave = async () => {
     setSaving(true);
@@ -237,11 +249,13 @@ export default function AdminEducation() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {educationData.map((edu) => {
+      <DragDropList
+        items={educationData}
+        onReorder={handleReorder}
+        renderItem={(edu) => {
           const isEditing = editingId === edu.id;
           return (
-            <div key={edu.id} className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
+            <div className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
               <div className="p-4 border-b border-gray-200 bg-gray-50">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -421,8 +435,8 @@ export default function AdminEducation() {
               )}
             </div>
           );
-        })}
-      </div>
+        }}
+      />
 
       {educationData.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200">

@@ -220,8 +220,10 @@ export function usePhilosophy() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setItems(defaultPhilosophy);
+        } else if (!data) {
           setItems(defaultPhilosophy);
         } else {
           setItems(data);
@@ -254,8 +256,10 @@ export function useProgression() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setItems(defaultProgression);
+        } else if (!data) {
           setItems(defaultProgression);
         } else {
           setItems(data);
@@ -293,8 +297,11 @@ export function useProjects(featuredOnly = false) {
 
         const { data, error } = await query;
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          const fb = featuredOnly ? defaultProjects.filter(p => p.featured) : defaultProjects;
+          setProjects(fb);
+        } else if (!data) {
           const fb = featuredOnly ? defaultProjects.filter(p => p.featured) : defaultProjects;
           setProjects(fb);
         } else {
@@ -331,8 +338,10 @@ export function useSkills() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setSkills(defaultSkills);
+        } else if (!data) {
           setSkills(defaultSkills);
         } else {
           setSkills(data);
@@ -399,8 +408,10 @@ export function useExperiences() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setExperiences(defaultExperiences);
+        } else if (!data) {
           setExperiences(defaultExperiences);
         } else {
           setExperiences(data);
@@ -433,8 +444,10 @@ export function useEducation() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setEducation(defaultEducation);
+        } else if (!data) {
           setEducation(defaultEducation);
         } else {
           setEducation(data);
@@ -467,8 +480,10 @@ export function useServices() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setServices(defaultServices);
+        } else if (!data) {
           setServices(defaultServices);
         } else {
           setServices(data);
@@ -501,8 +516,10 @@ export function useSocials() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setSocials(defaultSocials);
+        } else if (!data) {
           setSocials(defaultSocials);
         } else {
           setSocials(data);
@@ -540,8 +557,11 @@ export function useGallery(category?: string) {
 
         const { data, error } = await query;
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          const fb = category ? defaultGallery.filter(g => g.category === category) : defaultGallery;
+          setImages(fb);
+        } else if (!data) {
           const fb = category ? defaultGallery.filter(g => g.category === category) : defaultGallery;
           setImages(fb);
         } else {
@@ -560,7 +580,7 @@ export function useGallery(category?: string) {
     return () => { cancelled = true; };
   }, [category]);
 
-  return { images, loading, error };
+  return { gallery: images, images, loading, error };
 }
 
 export function useFaqs() {
@@ -578,8 +598,10 @@ export function useFaqs() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setFaqs(defaultFaqs);
+        } else if (!data) {
           setFaqs(defaultFaqs);
         } else {
           setFaqs(data);
@@ -612,8 +634,10 @@ export function useNavLinks() {
           .order('order_index', { ascending: true });
 
         if (cancelled) return;
-        if (error || !data || data.length === 0) {
-          if (error) setError(error.message);
+        if (error) {
+          setError(error.message);
+          setNavLinks(defaultNav);
+        } else if (!data) {
           setNavLinks(defaultNav);
         } else {
           setNavLinks(data);

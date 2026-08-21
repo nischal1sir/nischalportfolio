@@ -2,12 +2,11 @@ import { useState, type FormEvent } from 'react';
 import { PageHero, PageSection } from '../components/ui/Page';
 import { Field, TextField, TextArea } from '../components/ui/Form';
 import { Button } from '../components/ui/Button';
-import { socials } from '../data/socials';
 import { socialIconLib, ArrowRightIcon } from '../components/ui/Icon';
 import { Check, Dot, Mail, MapPin } from 'lucide-react';
 import { submitContact } from '../services/contact';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { useProfile } from '../hooks/usePortfolioData';
+import { useProfile, useSocials } from '../hooks/usePortfolioData';
 
 interface FormState {
   name: string;
@@ -46,6 +45,7 @@ export default function Contact() {
   });
 
   const { profile } = useProfile();
+  const { socials } = useSocials();
   const [values, setValues] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});

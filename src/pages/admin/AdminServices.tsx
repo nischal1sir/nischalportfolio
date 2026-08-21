@@ -3,6 +3,7 @@ import { useAdmin } from './AdminContext';
 import { Save, Loader2, AlertCircle, CheckCircle, Plus, Trash2, Edit } from 'lucide-react';
 import { servicesApi } from '../../services/adminApi';
 import type { Service } from '../../types';
+import { DragDropList } from '../../components/admin/DragDropList';
 
 const iconOptions = [
   'layout', 'briefcase', 'user', 'code', 'database', 'refresh-cw',
@@ -35,6 +36,16 @@ export default function AdminServices() {
       setMessage({ type: 'error', text: `Failed to load: ${err instanceof Error ? err.message : 'Unknown error'}` });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReorder = async (newItems: Service[]) => {
+    setServicesData(newItems);
+    try {
+      await servicesApi.reorder(newItems.map((item, idx) => ({ id: item.id, order_index: idx })));
+      setMessage({ type: 'success', text: 'Services order updated successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to save order: ${err instanceof Error ? err.message : 'Unknown error'}` });
     }
   };
 
@@ -172,11 +183,13 @@ export default function AdminServices() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {servicesData.map((service) => {
+      <DragDropList
+        items={servicesData}
+        onReorder={handleReorder}
+        renderItem={(service) => {
           const isEditing = editingId === service.id;
           return (
-            <div key={service.id} className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
+            <div className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
               <div className="p-4 border-b border-gray-200 bg-gray-50">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -254,8 +267,8 @@ export default function AdminServices() {
               )}
             </div>
           );
-        })}
-      </div>
+        }}
+      />
 
       {servicesData.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200">

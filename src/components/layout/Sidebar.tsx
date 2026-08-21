@@ -1,8 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import photo from '../../assets/profile.jpg';
-import { profile } from '../../data/profile';
-import { navLinks, contactNav } from '../../data/nav';
-import { socials } from '../../data/socials';
+import { useProfile, useNavLinks, useSocials } from '../../hooks/usePortfolioData';
 import {
   socialIconLib,
   navIconLib,
@@ -11,6 +9,13 @@ import {
 
 export default function Sidebar() {
   const location = useLocation();
+  const { profile } = useProfile();
+  const { navLinks } = useNavLinks();
+  const { socials } = useSocials();
+
+  const mainNav = navLinks.filter(n => !n.is_contact);
+  const contactNav = navLinks.find(n => n.is_contact) || { label: "Let's Talk", to: "/contact" };
+
   const isActive = (to: string) =>
     to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
 
@@ -21,13 +26,13 @@ export default function Sidebar() {
     >
       <div className="flex flex-col items-center pt-6 pb-5 px-4 border-b border-[#ebebeb]">
         <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#ebebeb] shadow-sm mb-3">
-          <img src={photo} alt="Nischal Rai" className="w-full h-full object-cover" />
+          <img src={photo} alt={profile?.name || "Nischal Rai"} className="w-full h-full object-cover" />
         </div>
-        <p className="font-semibold text-[14px] tracking-[0.02em] text-[#171717] leading-tight">
-          {profile.name}
+        <p className="font-semibold text-[14px] tracking-[0.02em] text-[#171717] leading-tight text-center">
+          {profile?.name || 'Nischal Rai'}
         </p>
-        <p className="text-[10px] text-[#888888] mt-1 tracking-[0.05em]">
-          {profile.role}
+        <p className="text-[10px] text-[#888888] mt-1 tracking-[0.05em] text-center">
+          {profile?.role || 'Developer'}
         </p>
         <Link
           to="/resume"
@@ -39,7 +44,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="py-3 px-3 space-y-1">
-        {navLinks.map((link) => {
+        {mainNav.map((link) => {
           const Icon = navIconLib[link.icon];
           const active = isActive(link.to);
           return (
@@ -74,12 +79,6 @@ export default function Sidebar() {
           style={{ fontWeight: 500 }}
           aria-current={isActive(contactNav.to) ? 'page' : undefined}
         >
-          <span
-            className={`flex-shrink-0 ${
-              isActive(contactNav.to) ? 'text-white' : 'text-[#888888]'
-            }`}
-          >
-          </span>
           <span>{contactNav.label}</span>
         </Link>
 

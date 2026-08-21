@@ -1,14 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Mail } from 'lucide-react';
-import { faqs } from '../../data/faqs';
+import { useFaqs } from '../../hooks/usePortfolioData';
 import Reveal from '../Reveal';
 import { useReveal } from '../../hooks/useReveal';
 import { LinkButton } from './Button';
 import { ArrowRightIcon } from './Icon';
 
 export function FaqSection() {
-  const [open, setOpen] = useState<string | null>(faqs[0]?.id ?? null);
+  const { faqs } = useFaqs();
+  const [open, setOpen] = useState<string | null>(null);
   const { ref } = useReveal<HTMLDivElement>(0.1);
+
+  useEffect(() => {
+    if (faqs.length > 0 && open === null) {
+      setOpen(faqs[0].id);
+    }
+  }, [faqs, open]);
 
   return (
     <div ref={ref} className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">

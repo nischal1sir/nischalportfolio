@@ -1,7 +1,7 @@
-import type { ServiceData } from '../../data/services';
+import type { Service } from '../../types';
 import { serviceIconLib } from './Icon';
 
-export function ServiceCard({ service }: { service: ServiceData }) {
+export function ServiceCard({ service }: { service: Service }) {
   const Icon = serviceIconLib[service.icon] ?? serviceIconLib.code;
 
   return (

@@ -1,18 +1,23 @@
 import { Link } from 'react-router-dom';
-import { profile } from '../../data/profile';
-import { navLinks, contactNav } from '../../data/nav';
-import { socials } from '../../data/socials';
+import { useProfile, useNavLinks, useSocials } from '../../hooks/usePortfolioData';
 import { socialIconLib } from '../ui/Icon';
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const { profile } = useProfile();
+  const { navLinks } = useNavLinks();
+  const { socials } = useSocials();
+
+  const mainNav = navLinks.filter(n => !n.is_contact);
+  const contactNav = navLinks.find(n => n.is_contact) || { label: "Let's Talk", to: "/contact" };
+
   return (
     <footer className="mt-auto border-t border-[#ebebeb] bg-[#fafafa] lg:hidden">
       <div className="px-5 sm:px-8 md:px-12 py-10 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <p className="font-semibold text-[15px] text-[#171717] mb-2">
-              {profile.name}
+              {profile?.name || 'Nischal Rai'}
               <span className="text-[#0070f3]">.</span>
             </p>
             <p className="text-[13px] leading-relaxed text-[#4d4d4d] max-w-xs">
@@ -25,7 +30,7 @@ export default function Footer() {
               Navigate
             </p>
             <ul className="grid grid-cols-2 gap-y-2 gap-x-4">
-              {navLinks.map((link) => (
+              {mainNav.map((link) => (
                 <li key={link.to}>
                   <Link
                     to={link.to}
@@ -67,15 +72,17 @@ export default function Footer() {
                 );
               })}
             </div>
-            <p className="mt-4 text-[11px] text-[#888888]">
-              Based in {profile.location}
-            </p>
+            {profile?.location && (
+              <p className="mt-4 text-[11px] text-[#888888]">
+                Based in {profile.location}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="mt-10 pt-5 border-t border-[#ebebeb] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <p className="text-[11px] tracking-[0.05em] text-[#888888]">
-            © {year} {profile.name}. All rights reserved.
+            © {year} {profile?.name || 'Nischal Rai'}. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link

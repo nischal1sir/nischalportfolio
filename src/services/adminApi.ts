@@ -12,6 +12,86 @@ async function handleResponse<T>(data: T | null, error: Error | null): Promise<T
 }
 
 // ============================================================================
+// REORDER & STORAGE HELPERS
+// ============================================================================
+export async function reorderItems(tableName: string, items: { id: string; order_index: number }[]): Promise<void> {
+  const validItems = items.filter(item => !item.id.startsWith('temp-'));
+  if (validItems.length === 0) return;
+
+  const updates = validItems.map((item) =>
+    supabase
+      .from(tableName)
+      .update({ order_index: item.order_index, updated_at: new Date().toISOString() })
+      .eq('id', item.id)
+  );
+
+  const results = await Promise.all(updates);
+  for (const res of results) {
+    if (res.error) throw new Error(res.error.message);
+  }
+}
+
+export async function deleteStorageFileFromUrl(url: string | null | undefined): Promise<void> {
+  if (!url || !url.includes('/storage/v1/object/public/')) return;
+  try {
+    const parts = url.split('/storage/v1/object/public/')[1];
+    if (!parts) return;
+    const slashIdx = parts.indexOf('/');
+    if (slashIdx === -1) return;
+    const bucket = parts.substring(0, slashIdx);
+    const filePath = decodeURIComponent(parts.substring(slashIdx + 1));
+    if (bucket && filePath) {
+      await supabase.storage.from(bucket).remove([filePath]);
+    }
+  } catch (err) {
+    console.warn('Failed to delete storage file:', err);
+  }
+}
+
+export async function uploadGalleryImage(file: File, id?: string): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const path = `gallery/${id || Date.now()}_${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from('gallery-images').upload(path, file, {
+    upsert: true,
+    contentType: file.type,
+  });
+  if (error) {
+    const fallbackPath = `gallery/${id || Date.now()}_${Date.now()}.${ext}`;
+    const { error: fallbackErr } = await supabase.storage.from('project-images').upload(fallbackPath, file, {
+      upsert: true,
+      contentType: file.type,
+    });
+    if (fallbackErr) throw new Error(error.message);
+    const { data } = supabase.storage.from('project-images').getPublicUrl(fallbackPath);
+    return data.publicUrl;
+  }
+  const { data } = supabase.storage.from('gallery-images').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+export async function uploadResumeFile(file: File): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'pdf';
+  const path = `resumes/resume_${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from('resumes').upload(path, file, {
+    upsert: true,
+    contentType: file.type || 'application/pdf',
+  });
+  if (error) {
+    const fallbackPath = `resumes/resume_${Date.now()}.${ext}`;
+    const { error: fallbackErr } = await supabase.storage.from('project-images').upload(fallbackPath, file, {
+      upsert: true,
+      contentType: file.type || 'application/pdf',
+    });
+    if (fallbackErr) throw new Error(error.message);
+    const { data } = supabase.storage.from('project-images').getPublicUrl(fallbackPath);
+    return data.publicUrl;
+  }
+  const { data } = supabase.storage.from('resumes').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+
+// ============================================================================
 // PROFILE API
 // ============================================================================
 export const profileApi = {
@@ -33,6 +113,14 @@ export const profileApi = {
       .select()
       .single();
     return handleResponse<Profile>(result, error);
+  },
+
+  async uploadResume(file: File): Promise<string> {
+    return uploadResumeFile(file);
+  },
+
+  async deleteResume(url: string): Promise<void> {
+    return deleteStorageFileFromUrl(url);
   },
 
   async getPhilosophy(): Promise<PhilosophyItem[]> {
@@ -299,6 +387,10 @@ export const experiencesApi = {
       .eq('id', id);
     if (error) throw new Error(error.message);
   },
+
+  async reorder(items: { id: string; order_index: number }[]): Promise<void> {
+    return reorderItems('experiences', items);
+  },
 };
 
 // ============================================================================
@@ -339,6 +431,10 @@ export const educationApi = {
       .eq('id', id);
     if (error) throw new Error(error.message);
   },
+
+  async reorder(items: { id: string; order_index: number }[]): Promise<void> {
+    return reorderItems('education', items);
+  },
 };
 
 // ============================================================================
@@ -378,6 +474,10 @@ export const servicesApi = {
       .delete()
       .eq('id', id);
     if (error) throw new Error(error.message);
+  },
+
+  async reorder(items: { id: string; order_index: number }[]): Promise<void> {
+    return reorderItems('services', items);
   },
 };
 
@@ -471,11 +571,23 @@ export const galleryApi = {
   },
 
   async remove(id: string): Promise<void> {
+    const item = await galleryApi.getById(id);
+    if (item?.image_url) {
+      await deleteStorageFileFromUrl(item.image_url);
+    }
     const { error } = await supabase
       .from('gallery')
       .delete()
       .eq('id', id);
     if (error) throw new Error(error.message);
+  },
+
+  async reorder(items: { id: string; order_index: number }[]): Promise<void> {
+    return reorderItems('gallery', items);
+  },
+
+  async uploadImage(file: File): Promise<string> {
+    return uploadGalleryImage(file);
   },
 };
 
@@ -516,6 +628,10 @@ export const faqsApi = {
       .delete()
       .eq('id', id);
     if (error) throw new Error(error.message);
+  },
+
+  async reorder(items: { id: string; order_index: number }[]): Promise<void> {
+    return reorderItems('faqs', items);
   },
 };
 
