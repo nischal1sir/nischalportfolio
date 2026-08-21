@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import ShinyText from '../components/ShinyText';
 import CardArc7 from '../components/CardArc7';
 import Reveal from '../components/Reveal';
-import { Button, LinkButton } from '../components/ui/Button';
+import { LinkButton } from '../components/ui/Button';
 import { SectionHeading, ReadMoreLink, TechTag } from '../components/ui/Section';
 import { PageSection } from '../components/ui/Page';
 import { ServiceCard } from '../components/ui/ServiceCard';
@@ -383,14 +383,10 @@ export default function Home() {
           <Progression />
         </div>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Button
-            onClick={() => {
-              window.location.hash = '#/contact';
-            }}
-          >
+          <LinkButton to="/contact" variant="primary">
             Let's Talk
             <ArrowRightIcon size={16} />
-          </Button>
+          </LinkButton>
           <LinkButton to="/projects" variant="secondary">
             View My Work
             <ArrowRightIcon size={16} />

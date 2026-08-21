@@ -3,11 +3,40 @@ import Reveal from '../components/Reveal';
 import { SectionHeading, ReadMoreLink, TechTag } from '../components/ui/Section';
 import { LinkButton } from '../components/ui/Button';
 import { Skeleton, TextLines } from '../components/ui/Skeleton';
-import { useProfile, usePhilosophy, useEducation, useExperiences, useLearningItems, useExploringItems } from '../hooks/usePortfolioData';
+import { useProfile, usePhilosophy, useEducation, useLearningItems, useExploringItems } from '../hooks/usePortfolioData';
 import { ArrowRightIcon } from '../components/ui/Icon';
-import { Dot, MapPin, Calendar } from 'lucide-react';
+import { Dot, MapPin, Calendar, GraduationCap, School, BookOpen, Shuffle, Hammer, Wrench } from 'lucide-react';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useReady } from '../hooks/useReady';
+
+function renderEducationIcon(icon: any) {
+  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null && 'render' in icon)) {
+    const IconComp = icon;
+    return <IconComp size={18} />;
+  }
+  if (typeof icon === 'string') {
+    const lower = icon.toLowerCase();
+    if (lower.includes('school')) return <School size={18} />;
+    if (lower.includes('book')) return <BookOpen size={18} />;
+    return <GraduationCap size={18} />;
+  }
+  return <GraduationCap size={18} />;
+}
+
+function renderPhilosophyIcon(icon: any) {
+  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null && 'render' in icon)) {
+    const IconComp = icon;
+    return <IconComp size={20} />;
+  }
+  if (typeof icon === 'string') {
+    const lower = icon.toLowerCase();
+    if (lower.includes('book') || lower.includes('open') || lower.includes('learn')) return <BookOpen size={20} />;
+    if (lower.includes('shuffle') || lower.includes('adapt')) return <Shuffle size={20} />;
+    if (lower.includes('hammer') || lower.includes('build')) return <Hammer size={20} />;
+    if (lower.includes('wrench') || lower.includes('tool')) return <Wrench size={20} />;
+  }
+  return <BookOpen size={20} />;
+}
 
 const interests = [
   'Learning new programming concepts',
@@ -32,11 +61,10 @@ export default function About() {
   const { profile, loading: profileLoading } = useProfile();
   const { items: philosophyItems, loading: philosophyLoading } = usePhilosophy();
   const { education, loading: educationLoading } = useEducation();
-  const { experiences, loading: experiencesLoading } = useExperiences();
   const { items: learningItems, loading: learningLoading } = useLearningItems();
   const { items: exploringItems, loading: exploringLoading } = useExploringItems();
 
-  const allLoading = profileLoading || philosophyLoading || educationLoading || experiencesLoading || learningLoading || exploringLoading;
+  const allLoading = profileLoading || philosophyLoading || educationLoading || learningLoading || exploringLoading;
 
   if (!ready) return <AboutSkeleton />;
 
@@ -93,7 +121,7 @@ export default function About() {
       </PageSection>
 
       {/* Development philosophy */}
-      <PageSection className="py-12 bg-[#fafafa] border-y border-[#ebebeb]">
+      <PageSection className="py-10 sm:py-12 bg-[#fafafa] border-y border-[#ebebeb]">
         <Reveal>
           <SectionHeading
             eyebrow="Mindset"
@@ -101,16 +129,20 @@ export default function About() {
             description="How I think about building software and growing as a developer."
           />
         </Reveal>
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           {philosophyItems.map((p, i) => {
             return (
               <Reveal key={p.id} delay={i * 70}>
-                <article className="group h-full p-6 bg-white border border-[#ebebeb] rounded-lg transition-all duration-300 hover:border-[#a1a1a1] hover:-translate-y-0.5">
-                  <span className="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-[#f5f5f5] text-[#171717] mb-4 transition-colors duration-300 group-hover:bg-[#171717] group-hover:text-white">
-                    <span className="text-2xl">{p.icon}</span>
-                  </span>
-                  <h3 className="text-[16px] font-semibold text-[#171717] mb-2">{p.title}</h3>
-                  <p className="text-[14px] leading-relaxed text-[#4d4d4d]">{p.description}</p>
+                <article className="group h-full p-5 sm:p-6 bg-white border border-[#ebebeb] rounded-xl transition-all duration-300 hover:border-[#a1a1a1] hover:shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-[#f1f5ff] text-[#0761d1] flex items-center justify-center mb-4 transition-colors duration-300 group-hover:bg-[#0761d1] group-hover:text-white shrink-0">
+                    {renderPhilosophyIcon(p.icon)}
+                  </div>
+                  <h3 className="text-[16px] sm:text-[17px] font-bold text-[#171717] mb-2 leading-snug">
+                    {p.title}
+                  </h3>
+                  <p className="text-[14px] leading-relaxed text-[#4d4d4d]">
+                    {p.description}
+                  </p>
                 </article>
               </Reveal>
             );
@@ -121,93 +153,78 @@ export default function About() {
       {/* Education */}
       <PageSection className="py-12">
         <Reveal>
-          <SectionHeading eyebrow="Background" title="Education" />
+          <SectionHeading eyebrow="Background" title="Education" description="Academic background, qualifications, and ongoing coursework." />
         </Reveal>
-        <div className="mt-8 relative pl-6 sm:pl-8 border-l border-[#ebebeb] space-y-8">
+        <div className="mt-8 relative pl-6 sm:pl-8 border-l-2 border-[#ebebeb] space-y-6">
           {education.map((item) => {
             return (
               <Reveal key={item.id}>
-                <div className="relative">
-                  <span className="absolute -left-[30px] sm:-left-[38px] top-1.5 w-3 h-3 rounded-full bg-[#0070f3] ring-4 ring-white" />
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-[#f1f5ff] text-[#0761d1] shrink-0">
-                      <span className="text-xl">{item.icon}</span>
-                    </span>
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <h3 className="text-[17px] font-semibold text-[#171717]">{item.institution}</h3>
-                      {item.status ? (
-                        <span className="text-[12px] font-medium px-2 py-0.5 rounded-full bg-[#f5f5f5] text-[#4d4d4d]">
-                          {item.status}
-                        </span>
-                      ) : null}
+                <article className="relative bg-white border border-[#ebebeb] rounded-xl p-5 sm:p-6 shadow-sm hover:border-[#a1a1a1] transition-all">
+                  {/* Timeline dot */}
+                  <span className="absolute -left-[31px] sm:-left-[39px] top-6 w-3.5 h-3.5 rounded-full bg-[#0070f3] ring-4 ring-white shrink-0" />
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-[#f3f4f6]">
+                    <div className="flex items-start sm:items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-[#f1f5ff] text-[#0761d1] flex items-center justify-center shrink-0">
+                        {renderEducationIcon(item.icon)}
+                      </div>
+                      <div>
+                        <h3 className="text-[17px] font-bold text-[#171717] tracking-tight leading-snug">
+                          {item.institution}
+                        </h3>
+                        <p className="text-[14px] font-medium text-[#0761d1] mt-0.5">
+                          {item.degree}
+                        </p>
+                      </div>
                     </div>
+                    {item.status ? (
+                      <span className="self-start sm:self-center px-2.5 py-1 text-[12px] font-medium rounded-full bg-[#f5f5f5] text-[#4d4d4d] border border-[#ebebeb] whitespace-nowrap">
+                        {item.status}
+                      </span>
+                    ) : null}
                   </div>
-                  <p className="text-[14px] text-[#4d4d4d] mb-2 pl-12">{item.degree}</p>
-                  <p className="text-[12px] text-[#888888] mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 pl-12">
-                    <span className="inline-flex items-center gap-1">
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-[#888888] mb-4">
+                    <span className="inline-flex items-center gap-1.5 bg-[#fafafa] px-2.5 py-1 rounded-md border border-[#ebebeb]">
                       <Calendar size={13} className="text-[#a1a1a1]" />
                       {item.period}
                     </span>
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5 bg-[#fafafa] px-2.5 py-1 rounded-md border border-[#ebebeb]">
                       <MapPin size={13} className="text-[#a1a1a1]" />
                       {item.location}
                     </span>
                     {item.faculty ? (
-                      <span className="text-[#a1a1a1]">&bull; Faculty: {item.faculty}</span>
+                      <span className="inline-flex items-center gap-1.5 bg-[#fafafa] px-2.5 py-1 rounded-md border border-[#ebebeb] text-[#4d4d4d]">
+                        Faculty: {item.faculty}
+                      </span>
                     ) : null}
-                  </p>
-                  <ul className="space-y-1.5 pl-12">
-                    {item.highlights.map((h) => (
-                      <li key={h} className="flex gap-2 text-[14px] text-[#4d4d4d]">
-                        <Dot size={18} className="text-[#a1a1a1] shrink-0 mt-0.5" />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                  </div>
+
+                  {item.highlights && item.highlights.length > 0 && (
+                    <ul className="space-y-2 text-[14px] text-[#4d4d4d]">
+                      {item.highlights.map((h) => (
+                        <li key={h} className="flex items-start gap-2">
+                          <Dot size={18} className="text-[#0761d1] shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {item.subjects && item.subjects.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-[#f3f4f6] flex flex-wrap items-center gap-1.5">
+                      <span className="text-[12px] font-medium text-[#888888] mr-1">Relevant Subjects:</span>
+                      {item.subjects.map((sub) => (
+                        <span key={sub} className="text-[12px] px-2 py-0.5 rounded bg-[#f5f5f5] text-[#4d4d4d] font-medium">
+                          {sub}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </article>
               </Reveal>
             );
           })}
-        </div>
-      </PageSection>
-
-      {/* Freelance experience */}
-      <PageSection className="py-12 bg-[#fafafa] border-y border-[#ebebeb]">
-        <Reveal>
-          <SectionHeading
-            eyebrow="Experience"
-            title="Freelance development"
-            description="Project-based work where I've turned requirements into functional, responsive websites."
-          />
-        </Reveal>
-        <div className="mt-8 space-y-6">
-          {experiences.map((exp) => (
-            <Reveal key={exp.id}>
-              <article className="p-6 sm:p-7 bg-white border border-[#ebebeb] rounded-lg">
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
-                  <h3 className="text-[16px] font-semibold text-[#171717]">{exp.role}</h3>
-                  <span className="text-[12px] text-[#888888]">{exp.period}</span>
-                </div>
-                <p className="text-[14px] text-[#4d4d4d] leading-relaxed mb-4">{exp.description}</p>
-                <ul className="space-y-2 mb-5">
-                  {exp.highlights.map((h) => (
-                    <li key={h} className="flex gap-2 text-[14px] text-[#4d4d4d]">
-                      <span className="text-[#a1a1a1] mt-1">•</span>
-                      <span>{h}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex flex-wrap gap-2">
-                  {exp.technologies.map((t) => (
-                    <TechTag key={t} name={t} />
-                  ))}
-                </div>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-8">
-          <ReadMoreLink to="/experience">See full experience</ReadMoreLink>
         </div>
       </PageSection>
 
