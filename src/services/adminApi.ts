@@ -593,6 +593,54 @@ export const galleryApi = {
   async uploadImage(file: File): Promise<string> {
     return uploadGalleryImage(file);
   },
+
+  async getAboutPreviewItemIds(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('about_gallery_preview')
+      .select('gallery_item_id')
+      .order('display_order', { ascending: true });
+    if (error || !data) return [];
+    return data.map(d => d.gallery_item_id);
+  },
+
+  async saveAboutPreviewItemIds(itemIds: string[]): Promise<void> {
+    // Delete old selections
+    const { error: delErr } = await supabase
+      .from('about_gallery_preview')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (delErr) throw new Error(delErr.message);
+
+    if (itemIds.length === 0) return;
+
+    const rows = itemIds.slice(0, 3).map((id, index) => ({
+      gallery_item_id: id,
+      display_order: index,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { error: insErr } = await supabase
+      .from('about_gallery_preview')
+      .insert(rows);
+    if (insErr) throw new Error(insErr.message);
+  },
+
+  async saveAllLayout(items: GalleryImage[]): Promise<GalleryImage[]> {
+    const results: GalleryImage[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const { id, created_at, updated_at, ...rest } = item;
+      if (id.startsWith('temp-')) {
+        const created = await galleryApi.create({ ...rest, order_index: i });
+        results.push(created);
+      } else {
+        const updated = await galleryApi.update(id, { ...rest, order_index: i });
+        results.push(updated);
+      }
+    }
+    return results;
+  },
 };
 
 // ============================================================================

@@ -381,6 +381,20 @@ export const galleryApi = {
     return handleResponse<GalleryImage>(res);
   },
 
+  async getAboutPreview(): Promise<GalleryImage[]> {
+    const res = await fetch(`${API_URL}/gallery/about-preview`, { headers: { Accept: 'application/json' } });
+    return handleResponse<GalleryImage[]>(res);
+  },
+
+  async saveAboutPreview(item_ids: string[]): Promise<void> {
+    const res = await fetch(`${API_URL}/gallery/about-preview`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ item_ids }),
+    });
+    await handleResponse(res);
+  },
+
   async remove(id: string): Promise<void> {
     const res = await fetch(`${API_URL}/gallery/${id}`, {
       method: 'DELETE',

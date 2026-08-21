@@ -9,6 +9,7 @@ const Projects = lazy(() => import('../pages/Projects').then(m => ({ default: m.
 const Experience = lazy(() => import('../pages/Experience').then(m => ({ default: m.default })));
 const Contact = lazy(() => import('../pages/Contact').then(m => ({ default: m.default })));
 const Resume = lazy(() => import('../pages/Resume').then(m => ({ default: m.default })));
+const GalleryPage = lazy(() => import('../pages/Gallery').then(m => ({ default: m.default })));
 const AdminLayout = lazy(() => import('../pages/admin/AdminLayout').then(m => ({ default: m.default })));
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin').then(m => ({ default: m.default })));
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard').then(m => ({ default: m.default })));
@@ -41,6 +42,8 @@ const routes = createHashRouter([
       { path: 'experience', element: <Suspense fallback={<Loading />}><Experience /></Suspense> },
       { path: 'contact', element: <Suspense fallback={<Loading />}><Contact /></Suspense> },
       { path: 'resume', element: <Suspense fallback={<Loading />}><Resume /></Suspense> },
+      { path: 'gallery', element: <Suspense fallback={<Loading />}><GalleryPage /></Suspense> },
+      { path: 'about/gallery', element: <Suspense fallback={<Loading />}><GalleryPage /></Suspense> },
       { path: '*', element: <Suspense fallback={<Loading />}><Home /></Suspense> },
     ],
   },
