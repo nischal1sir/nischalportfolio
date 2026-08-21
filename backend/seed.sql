@@ -5,7 +5,7 @@
 -- =============================================================================
 -- profile
 -- =============================================================================
-insert into public.profiles (id, name, role, taglines, headline, intro, about, resume_url, location, email)
+insert into public.profiles (id, name, role, taglines, headline, intro, about, resume_url, location, email, interests)
 values (
   '00000000-0000-0000-0000-000000000001'::uuid,
   'Nischal Rai',
@@ -16,7 +16,8 @@ values (
   'I am a hardworking and passionate developer who enjoys learning, experimenting and adapting to new technologies. I believe every project is an opportunity to learn something new.',
   '/resume.pdf',
   'Nepal',
-  'nischalrai@example.com'
+  'nischalrai@example.com',
+  array['Learning new programming concepts', 'Exploring new technologies', 'Building websites', 'Solving problems', 'Working on real projects', 'Understanding how systems work', 'Improving existing code', 'Adapting to unfamiliar codebases']
 )
 on conflict (id) do nothing;
 
@@ -306,17 +307,32 @@ on conflict do nothing;
 -- =============================================================================
 -- gallery
 -- =============================================================================
-insert into public.gallery (id, title, description, image_url, category, tags, featured, order_index)
-values ('g-1', 'Workspace setup', 'Developer desk with dual monitors and warm lighting.', 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800', 'Setup', array['workspace', 'desk', 'monitors'], true, 0)
+insert into public.gallery (id, title, description, image_url, category, tags, featured, order_index, shape, width, height, position_x, position_y, object_fit, object_position, is_visible)
+values ('g-1', 'Workspace setup', 'Developer desk with dual monitors and warm lighting.', 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800', 'Setup', array['workspace', 'desk', 'monitors'], true, 0, 'portrait', 4, 4, 1, 1, 'cover', 'center', true)
 on conflict (id) do nothing;
 
-insert into public.gallery (id, title, description, image_url, category, tags, featured, order_index)
-values ('g-2', 'Late-night coding', 'Dark IDE theme at 2am - when the best ideas land.', 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800', 'Code', array['coding', 'night', 'ide'], false, 1)
+insert into public.gallery (id, title, description, image_url, category, tags, featured, order_index, shape, width, height, position_x, position_y, object_fit, object_position, is_visible)
+values ('g-2', 'Late-night coding', 'Dark IDE theme at 2am - when the best ideas land.', 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800', 'Code', array['coding', 'night', 'ide'], false, 1, 'landscape', 4, 2, 5, 1, 'cover', 'center', true)
 on conflict (id) do nothing;
 
-insert into public.gallery (id, title, description, image_url, category, tags, featured, order_index)
-values ('g-3', 'Whiteboard session', 'Planning architecture before writing the first line.', 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800', 'Planning', array['planning', 'architecture', 'whiteboard'], true, 2)
+insert into public.gallery (id, title, description, image_url, category, tags, featured, order_index, shape, width, height, position_x, position_y, object_fit, object_position, is_visible)
+values ('g-3', 'Whiteboard session', 'Planning architecture before writing the first line.', 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800', 'Planning', array['planning', 'architecture', 'whiteboard'], true, 2, 'medium_square', 4, 2, 9, 1, 'cover', 'center', true)
 on conflict (id) do nothing;
+
+-- =============================================================================
+-- about gallery preview
+-- =============================================================================
+insert into public.about_gallery_preview (gallery_item_id, display_order)
+values ('g-1', 0)
+on conflict do nothing;
+
+insert into public.about_gallery_preview (gallery_item_id, display_order)
+values ('g-2', 1)
+on conflict do nothing;
+
+insert into public.about_gallery_preview (gallery_item_id, display_order)
+values ('g-3', 2)
+on conflict do nothing;
 
 -- =============================================================================
 -- faqs
@@ -369,5 +385,9 @@ values ('Experience', '/experience', 'briefcase', false, 4)
 on conflict do nothing;
 
 insert into public.nav_links (label, "to", icon, is_contact, order_index)
-values ('Let''s Talk', '/contact', 'mail', true, 5)
+values ('Gallery', '/gallery', 'image', false, 5)
+on conflict do nothing;
+
+insert into public.nav_links (label, "to", icon, is_contact, order_index)
+values ('Let''s Talk', '/contact', 'mail', true, 6)
 on conflict do nothing;

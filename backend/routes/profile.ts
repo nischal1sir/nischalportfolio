@@ -49,7 +49,7 @@ router.get('/progression', async (_req: Request, res: Response, next: NextFuncti
 
 router.put('/', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, role, taglines, headline, intro, about, resume_url, location, email } = req.body;
+    const { name, role, taglines, headline, intro, about, resume_url, location, email, interests } = req.body;
 
     const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (name !== undefined) updateData.name = name;
@@ -61,6 +61,7 @@ router.put('/', requireAuth, async (req: Request, res: Response, next: NextFunct
     if (resume_url !== undefined) updateData.resume_url = resume_url;
     if (location !== undefined) updateData.location = location;
     if (email !== undefined) updateData.email = email;
+    if (interests !== undefined) updateData.interests = interests;
 
     const { data, error } = await supabase
       .from('profiles')

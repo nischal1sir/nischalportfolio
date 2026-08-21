@@ -389,6 +389,44 @@ export default function AdminProfile() {
         </section>
 
         <section>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold text-gray-900">Things I Enjoy (About Page Interests)</h2>
+            <span className="text-xs text-gray-500">Pills displayed on the About page</span>
+          </div>
+          <div className="space-y-3">
+            {(data.interests || []).map((interest, index) => (
+              <div key={index} className="flex gap-3">
+                <input
+                  type="text"
+                  value={interest}
+                  placeholder="e.g. Learning new programming concepts"
+                  onChange={(e) => {
+                    const newInterests = [...(data.interests || [])];
+                    newInterests[index] = e.target.value;
+                    setData({ ...data, interests: newInterests });
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={() => setData({ ...data, interests: (data.interests || []).filter((_, i) => i !== index) })}
+                  className="px-3 py-2 text-red-600 hover:text-red-700 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setData({ ...data, interests: [...(data.interests || []), ''] })}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
+            >
+              + Add Interest Item
+            </button>
+          </div>
+        </section>
+
+        <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Intro & About</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

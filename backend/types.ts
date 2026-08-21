@@ -9,6 +9,7 @@ export interface Profile {
   resume_url: string | null;
   location: string;
   email: string;
+  interests?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -123,6 +124,17 @@ export interface SocialLink {
   updated_at: string;
 }
 
+export type GalleryShape =
+  | 'small_square'
+  | 'medium_square'
+  | 'large_square'
+  | 'portrait'
+  | 'tall_portrait'
+  | 'landscape'
+  | 'wide_landscape'
+  | 'large_feature'
+  | 'custom';
+
 export interface GalleryImage {
   id: string;
   title: string;
@@ -132,8 +144,25 @@ export interface GalleryImage {
   tags: string[];
   featured: boolean;
   order_index: number;
+  shape?: GalleryShape;
+  width?: number;
+  height?: number;
+  position_x?: number | null;
+  position_y?: number | null;
+  z_index?: number;
+  object_fit?: 'cover' | 'contain';
+  object_position?: string;
+  is_visible?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface AboutGalleryPreviewItem {
+  id: string;
+  gallery_item_id: string;
+  display_order: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Faq {

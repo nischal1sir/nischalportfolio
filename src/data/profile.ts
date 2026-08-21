@@ -8,6 +8,7 @@ export interface ProfileData {
   resumeUrl: string;
   location: string;
   email: string;
+  interests?: string[];
 }
 
 export const profile: ProfileData = {
@@ -26,6 +27,16 @@ export const profile: ProfileData = {
   resumeUrl: '/resume.pdf',
   location: 'Nepal',
   email: 'nischalrai@example.com',
+  interests: [
+    'Learning new programming concepts',
+    'Exploring new technologies',
+    'Building websites',
+    'Solving problems',
+    'Working on real projects',
+    'Understanding how systems work',
+    'Improving existing code',
+    'Adapting to unfamiliar codebases',
+  ],
 };
 
 export const philosophy = [

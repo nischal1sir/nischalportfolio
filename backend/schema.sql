@@ -39,6 +39,7 @@ create table if not exists public.profiles (
   resume_url      text,
   location        text not null,
   email           text not null,
+  interests       text[] not null default '{}',
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );
@@ -352,9 +353,29 @@ create table if not exists public.gallery (
   tags            text[] not null default '{}',
   featured        boolean not null default false,
   order_index     integer not null default 0,
+  shape           text not null default 'medium_square',
+  width           integer not null default 4,
+  height          integer not null default 3,
+  position_x      integer default null,
+  position_y      integer default null,
+  z_index         integer not null default 1,
+  object_fit      text not null default 'cover',
+  object_position text not null default 'center',
+  is_visible      boolean not null default true,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );
+
+-- Alter table columns for existing database tables
+alter table public.gallery add column if not exists shape text not null default 'medium_square';
+alter table public.gallery add column if not exists width integer not null default 4;
+alter table public.gallery add column if not exists height integer not null default 3;
+alter table public.gallery add column if not exists position_x integer default null;
+alter table public.gallery add column if not exists position_y integer default null;
+alter table public.gallery add column if not exists z_index integer not null default 1;
+alter table public.gallery add column if not exists object_fit text not null default 'cover';
+alter table public.gallery add column if not exists object_position text not null default 'center';
+alter table public.gallery add column if not exists is_visible boolean not null default true;
 
 create index if not exists gallery_category_idx on public.gallery (category);
 create index if not exists gallery_order_idx on public.gallery (order_index);
@@ -369,6 +390,33 @@ create policy "Public read gallery"
 drop policy if exists "Admin write gallery" on public.gallery;
 create policy "Admin write gallery"
   on public.gallery for all
+  to authenticated
+  using (true)
+  with check (true);
+
+-- =============================================================================
+-- about_gallery_preview
+-- =============================================================================
+create table if not exists public.about_gallery_preview (
+  id              uuid primary key default gen_random_uuid(),
+  gallery_item_id text not null references public.gallery(id) on delete cascade,
+  display_order   integer not null default 0,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+create index if not exists about_gallery_preview_order_idx on public.about_gallery_preview (display_order);
+
+alter table public.about_gallery_preview enable row level security;
+
+drop policy if exists "Public read about_gallery_preview" on public.about_gallery_preview;
+create policy "Public read about_gallery_preview"
+  on public.about_gallery_preview for select
+  using (true);
+
+drop policy if exists "Admin write about_gallery_preview" on public.about_gallery_preview;
+create policy "Admin write about_gallery_preview"
+  on public.about_gallery_preview for all
   to authenticated
   using (true)
   with check (true);

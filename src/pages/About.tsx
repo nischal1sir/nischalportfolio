@@ -4,7 +4,7 @@ import Reveal from '../components/Reveal';
 import { SectionHeading, ReadMoreLink, TechTag } from '../components/ui/Section';
 import { LinkButton } from '../components/ui/Button';
 import { Skeleton, TextLines } from '../components/ui/Skeleton';
-import { useProfile, usePhilosophy, useEducation, useLearningItems, useExploringItems, useGallery } from '../hooks/usePortfolioData';
+import { useProfile, usePhilosophy, useEducation, useLearningItems, useExploringItems, useAboutGalleryPreview } from '../hooks/usePortfolioData';
 import { ArrowRightIcon } from '../components/ui/Icon';
 import { Dot, MapPin, Calendar, GraduationCap, School, BookOpen, Shuffle, Hammer, Wrench, X, ZoomIn } from 'lucide-react';
 import type { GalleryImage } from '../types';
@@ -40,7 +40,7 @@ function renderPhilosophyIcon(icon: any) {
   return <BookOpen size={20} />;
 }
 
-const interests = [
+const defaultInterests = [
   'Learning new programming concepts',
   'Exploring new technologies',
   'Building websites',
@@ -65,11 +65,11 @@ export default function About() {
   const { education, loading: educationLoading } = useEducation();
   const { items: learningItems, loading: learningLoading } = useLearningItems();
   const { items: exploringItems, loading: exploringLoading } = useExploringItems();
-  const { gallery = [], loading: galleryLoading } = useGallery();
+  const { previewImages = [], loading: previewLoading } = useAboutGalleryPreview();
 
   const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
 
-  const allLoading = profileLoading || philosophyLoading || educationLoading || learningLoading || exploringLoading || galleryLoading;
+  const allLoading = profileLoading || philosophyLoading || educationLoading || learningLoading || exploringLoading || previewLoading;
 
   if (!ready) return <AboutSkeleton />;
 
@@ -91,6 +91,10 @@ export default function About() {
       </div>
     );
   }
+
+  const interestsList = (profile.interests && profile.interests.length > 0)
+    ? profile.interests
+    : defaultInterests;
 
   return (
     <>
@@ -118,7 +122,7 @@ export default function About() {
             Things I enjoy
           </p>
           <div className="flex flex-wrap gap-2.5">
-            {interests.map((i) => (
+            {interestsList.map((i) => (
               <TechTag key={i} name={i} />
             ))}
           </div>
@@ -255,65 +259,83 @@ export default function About() {
         </div>
       </PageSection>
 
-      {/* Gallery Section */}
-      {gallery.length > 0 && (
-        <PageSection className="py-12 bg-[#fafafa] border-y border-[#ebebeb]">
+      {/* About Page Gallery Preview Section (3 Admin-selected images) */}
+      {previewImages.length > 0 && (
+        <PageSection className="py-14 bg-[#fafafa] border-y border-[#ebebeb]">
           <Reveal>
-            <SectionHeading
-              eyebrow="Visual Journey"
-              title="Work & Workspace Gallery"
-              description="A snapshot of my developer setup, projects, coding sessions, and learning milestones."
-            />
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.15em] text-[#0070f3] font-semibold mb-1">
+                  Selected Highlights
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#171717]">
+                  Gallery Preview
+                </h2>
+                <p className="text-sm text-[#666666] mt-1 max-w-xl">
+                  A small preview of featured workspace setups and project snapshots selected from the main gallery.
+                </p>
+              </div>
+
+              {/* View More Link Button to /about/gallery */}
+              <LinkButton to="/about/gallery" variant="secondary" className="shrink-0">
+                <span>View Full Gallery</span>
+                <ArrowRightIcon size={16} />
+              </LinkButton>
+            </div>
           </Reveal>
 
-          {/* Gallery Grid */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {gallery.map((img, i) => (
-              <Reveal key={img.id} delay={i * 60}>
+          {/* 3-Image Preview Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {previewImages.slice(0, 3).map((img, i) => (
+              <Reveal key={img.id} delay={i * 80}>
                 <div
                   onClick={() => setLightboxImage(img)}
                   className="group relative bg-white border border-[#ebebeb] rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-[#0070f3] transition-all cursor-pointer flex flex-col h-full"
                 >
-                  <div className="relative aspect-video sm:aspect-[4/3] w-full overflow-hidden bg-gray-100">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
                     <img
                       src={img.image_url}
                       alt={img.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={{
+                        objectFit: img.object_fit || 'cover',
+                        objectPosition: img.object_position || 'center',
+                      }}
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                      <ZoomIn className="w-8 h-8 transform scale-75 group-hover:scale-100 transition-transform duration-300" />
+                      <ZoomIn className="w-7 h-7 transform scale-75 group-hover:scale-100 transition-transform duration-300" />
                     </div>
-                    {img.featured && (
-                      <span className="absolute top-3 right-3 px-2.5 py-1 bg-[#0070f3] text-white text-xs font-semibold rounded-full shadow">
-                        Featured
-                      </span>
-                    )}
+                    <span className="absolute top-3 left-3 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-mono font-medium rounded-full">
+                      00{i + 1}
+                    </span>
                   </div>
-                  <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="font-bold text-gray-900 text-base group-hover:text-[#0070f3] transition-colors">
+                      <h3 className="font-bold text-gray-900 text-sm group-hover:text-[#0070f3] transition-colors">
                         {img.title}
                       </h3>
                       {img.description && (
-                        <p className="mt-1.5 text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                        <p className="mt-1 text-xs text-gray-500 line-clamp-2 leading-relaxed">
                           {img.description}
                         </p>
                       )}
                     </div>
-                    {img.tags && img.tags.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-1.5 pt-3 border-t border-gray-100">
-                        {img.tags.map((t) => (
-                          <span key={t} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-md">
-                            #{t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-[#0070f3] font-medium">
+                      <span>{img.category}</span>
+                      <span className="group-hover:translate-x-0.5 transition-transform">Details ↗</span>
+                    </div>
                   </div>
                 </div>
               </Reveal>
             ))}
+          </div>
+
+          <div className="mt-8 text-center sm:hidden">
+            <LinkButton to="/about/gallery" variant="secondary" className="w-full justify-center">
+              <span>View Full Gallery</span>
+              <ArrowRightIcon size={16} />
+            </LinkButton>
           </div>
         </PageSection>
       )}

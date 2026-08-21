@@ -32,6 +32,7 @@ const defaultProfile: Profile = {
   resume_url: fbProfile.resumeUrl || null,
   location: fbProfile.location,
   email: fbProfile.email,
+  interests: fbProfile.interests || [],
   created_at: now,
   updated_at: now,
 };
@@ -142,6 +143,15 @@ const defaultGallery: GalleryImage[] = fbGallery.map((g, idx) => ({
   tags: g.tags,
   featured: g.featured,
   order_index: g.order_index ?? idx,
+  shape: (g as any).shape || (idx % 3 === 0 ? 'portrait' : idx % 3 === 1 ? 'landscape' : 'medium_square'),
+  width: (g as any).width || 4,
+  height: (g as any).height || (idx % 3 === 0 ? 4 : 2),
+  position_x: (g as any).position_x ?? null,
+  position_y: (g as any).position_y ?? null,
+  z_index: (g as any).z_index || 1,
+  object_fit: (g as any).object_fit || 'cover',
+  object_position: (g as any).object_position || 'center',
+  is_visible: (g as any).is_visible !== undefined ? (g as any).is_visible : true,
   created_at: g.created_at || now,
   updated_at: g.updated_at || now,
 }));
@@ -581,6 +591,74 @@ export function useGallery(category?: string) {
   }, [category]);
 
   return { gallery: images, images, loading, error };
+}
+
+export function useAboutGalleryPreview() {
+  const [items, setItems] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchPreview() {
+      try {
+        const { data: previewData, error: pErr } = await supabase
+          .from('about_gallery_preview')
+          .select('gallery_item_id, display_order')
+          .order('display_order', { ascending: true });
+
+        if (cancelled) return;
+
+        if (!pErr && previewData && previewData.length > 0) {
+          const itemIds = previewData.map(p => p.gallery_item_id);
+          const { data: galleryData, error: gErr } = await supabase
+            .from('gallery')
+            .select('*')
+            .in('id', itemIds);
+
+          if (!cancelled && !gErr && galleryData && galleryData.length > 0) {
+            const map = new Map(galleryData.map(item => [item.id, item]));
+            const ordered = previewData
+              .map(p => map.get(p.gallery_item_id))
+              .filter((item): item is GalleryImage => Boolean(item));
+
+            if (ordered.length > 0) {
+              setItems(ordered);
+              setLoading(false);
+              return;
+            }
+          }
+        }
+
+        // Fallback: top 3 gallery items
+        const { data: fallback, error: fbErr } = await supabase
+          .from('gallery')
+          .select('*')
+          .order('order_index', { ascending: true })
+          .limit(3);
+
+        if (cancelled) return;
+
+        if (!fbErr && fallback && fallback.length > 0) {
+          setItems(fallback);
+        } else {
+          setItems(defaultGallery.slice(0, 3));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Error fetching preview');
+          setItems(defaultGallery.slice(0, 3));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchPreview();
+    return () => { cancelled = true; };
+  }, []);
+
+  return { previewImages: items, loading, error };
 }
 
 export function useFaqs() {
