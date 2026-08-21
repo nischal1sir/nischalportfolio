@@ -189,18 +189,47 @@ export function useProfile() {
     let cancelled = false;
     async function fetchProfile() {
       try {
-        const { data, error } = await supabase
+        let fetchedData: Profile | null = null;
+        const { data, error: selectErr } = await supabase
           .from('profiles')
           .select('*')
           .limit(1)
           .maybeSingle();
 
+        if (selectErr) {
+          setError(selectErr.message);
+          const { data: fbData } = await supabase
+            .from('profiles')
+            .select('id, name, role, taglines, headline, intro, about, resume_url, location, email, created_at, updated_at')
+            .limit(1)
+            .maybeSingle();
+          fetchedData = fbData as Profile | null;
+        } else {
+          fetchedData = data as Profile | null;
+        }
+
         if (cancelled) return;
-        if (error || !data) {
-          if (error) setError(error.message);
+
+        if (!fetchedData) {
           setProfile(defaultProfile);
         } else {
-          setProfile(data);
+          let interests = fetchedData.interests;
+          if (!interests || interests.length === 0) {
+            try {
+              const localStr = localStorage.getItem('nischal_portfolio_interests');
+              if (localStr) {
+                const parsed = JSON.parse(localStr);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  interests = parsed;
+                }
+              }
+            } catch (_) {}
+          }
+          if (!interests || interests.length === 0) {
+            interests = defaultProfile.interests;
+          }
+
+          setProfile({ ...fetchedData, interests });
         }
       } catch (err) {
         if (!cancelled) setProfile(defaultProfile);

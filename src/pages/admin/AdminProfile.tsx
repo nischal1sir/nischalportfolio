@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { useAdmin } from './AdminContext';
-import { Save, Loader2, AlertCircle, CheckCircle, Upload, FileText, Trash2, ExternalLink } from 'lucide-react';
+import { Save, Loader2, AlertCircle, CheckCircle, Upload, FileText, Trash2, ExternalLink, ArrowUp, ArrowDown, Plus, RotateCcw, Heart, Sparkles } from 'lucide-react';
 import { profileApi } from '../../services/adminApi';
 import type { Profile, PhilosophyItem, ProgressionItem } from '../../types';
 
@@ -92,8 +92,12 @@ export default function AdminProfile() {
     setSaving(true);
     setMessage(null);
     try {
+      // Clean empty/whitespace interest entries before saving
+      const cleanInterests = (data.interests || []).map(i => i.trim()).filter(Boolean);
+      const payload = { ...data, interests: cleanInterests };
+
       // Update profile
-      const updatedProfile = await profileApi.update(data);
+      const updatedProfile = await profileApi.update(payload);
       setData(updatedProfile);
 
       // Save philosophy items
@@ -402,14 +406,25 @@ export default function AdminProfile() {
           </div>
         </section>
 
-        <section>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">Things I Enjoy (About Page Interests)</h2>
-            <span className="text-xs text-gray-500">Pills displayed on the About page</span>
+        <section className="border-t border-gray-100 pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Heart className="w-5 h-5 text-red-500 fill-red-100" />
+                Things I Enjoy (About Page Interests)
+              </h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Manage the interests & hobbies pills displayed in the "Who I Am" section on the About page
+              </p>
+            </div>
+            <span className="text-xs font-mono bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200 self-start sm:self-auto">
+              {(data.interests || []).filter(i => i.trim()).length} Items
+            </span>
           </div>
+
           <div className="space-y-3">
             {(data.interests || []).map((interest, index) => (
-              <div key={index} className="flex gap-3">
+              <div key={index} className="flex flex-col sm:flex-row gap-2 sm:items-center bg-gray-50 p-2.5 rounded-xl border border-gray-200 group hover:border-gray-300 transition-colors">
                 <input
                   type="text"
                   value={interest}
@@ -419,32 +434,90 @@ export default function AdminProfile() {
                     newInterests[index] = e.target.value;
                     setData({ ...data, interests: newInterests });
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-3.5 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
                 />
-                <button
-                  type="button"
-                  onClick={() => setData({ ...data, interests: (data.interests || []).filter((_, i) => i !== index) })}
-                  className="px-3 py-2 text-red-600 hover:text-red-700 text-sm"
-                >
-                  Remove
-                </button>
+                <div className="flex items-center justify-end gap-1 shrink-0">
+                  <button
+                    type="button"
+                    title="Move Up"
+                    disabled={index === 0}
+                    onClick={() => {
+                      const newInterests = [...(data.interests || [])];
+                      const temp = newInterests[index];
+                      newInterests[index] = newInterests[index - 1];
+                      newInterests[index - 1] = temp;
+                      setData({ ...data, interests: newInterests });
+                    }}
+                    className="p-1.5 text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-gray-500 rounded hover:bg-white transition-colors"
+                  >
+                    <ArrowUp className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    title="Move Down"
+                    disabled={index === (data.interests || []).length - 1}
+                    onClick={() => {
+                      const newInterests = [...(data.interests || [])];
+                      const temp = newInterests[index];
+                      newInterests[index] = newInterests[index + 1];
+                      newInterests[index + 1] = temp;
+                      setData({ ...data, interests: newInterests });
+                    }}
+                    className="p-1.5 text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-gray-500 rounded hover:bg-white transition-colors"
+                  >
+                    <ArrowDown className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    title="Remove item"
+                    onClick={() => setData({ ...data, interests: (data.interests || []).filter((_, i) => i !== index) })}
+                    className="p-1.5 text-red-500 hover:text-red-700 rounded hover:bg-red-50 transition-colors ml-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))}
+
             <div className="flex flex-wrap gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setData({ ...data, interests: [...(data.interests || []), ''] })}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
               >
-                + Add Interest Item
+                <Plus className="w-4 h-4" />
+                Add Interest Item
               </button>
               <button
                 type="button"
                 onClick={() => setData({ ...data, interests: defaultInterests })}
-                className="px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm font-medium"
               >
+                <RotateCcw className="w-3.5 h-3.5" />
                 Reset to Default Interests
               </button>
+            </div>
+
+            {/* Live Visual Preview */}
+            <div className="mt-4 p-4 bg-gray-900 rounded-xl text-white space-y-2">
+              <div className="flex items-center justify-between text-xs text-gray-400">
+                <span className="font-semibold uppercase tracking-wider text-[10px] text-blue-400">Live Preview on About Page</span>
+                <span>{(data.interests || []).filter(i => i.trim()).length} pills</span>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {(data.interests || []).filter(i => i.trim()).map((item, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-800 text-gray-200 border border-gray-700 rounded-full text-xs font-medium"
+                  >
+                    <Sparkles className="w-3 h-3 text-blue-400" />
+                    {item}
+                  </span>
+                ))}
+                {(data.interests || []).filter(i => i.trim()).length === 0 && (
+                  <span className="text-xs text-gray-500 italic">No interests added yet. Click "+ Add Interest Item" above.</span>
+                )}
+              </div>
             </div>
           </div>
         </section>

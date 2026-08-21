@@ -46,6 +46,7 @@ create table if not exists public.profiles (
 
 -- Ensure interests column exists on existing profiles tables
 alter table public.profiles add column if not exists interests text[] not null default '{}';
+notify pgrst, 'reload schema';
 
 alter table public.profiles enable row level security;
 

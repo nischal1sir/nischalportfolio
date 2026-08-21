@@ -94,18 +94,63 @@ export async function uploadResumeFile(file: File): Promise<string> {
 // ============================================================================
 // PROFILE API
 // ============================================================================
+const PROFILE_SELECT_FALLBACK = 'id, name, role, taglines, headline, intro, about, resume_url, location, email, created_at, updated_at';
+
 export const profileApi = {
   async get(): Promise<Profile> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .limit(1)
-      .maybeSingle();
-    return handleResponse<Profile>(data, error);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+
+      let profileData: Profile | null = data as Profile | null;
+
+      if (error) {
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('profiles')
+          .select(PROFILE_SELECT_FALLBACK)
+          .limit(1)
+          .maybeSingle();
+
+        if (fallbackError) throw new Error(fallbackError.message);
+        profileData = fallbackData as Profile | null;
+      }
+
+      if (!profileData) {
+        throw new Error('Profile not found');
+      }
+
+      // Check localStorage for client-persisted interests fallback if missing/empty
+      if (!profileData.interests || profileData.interests.length === 0) {
+        try {
+          const localStr = localStorage.getItem('nischal_portfolio_interests');
+          if (localStr) {
+            const parsed = JSON.parse(localStr);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              profileData = { ...profileData, interests: parsed };
+            }
+          }
+        } catch (_) {}
+      }
+
+      return profileData;
+    } catch (err: any) {
+      throw err;
+    }
   },
 
   async update(data: Partial<Profile>): Promise<Profile> {
     const profileId = data.id || '00000000-0000-0000-0000-000000000001';
+
+    // Store interests in localStorage immediately as persistent client fallback
+    if (data.interests && Array.isArray(data.interests)) {
+      try {
+        localStorage.setItem('nischal_portfolio_interests', JSON.stringify(data.interests));
+      } catch (_) {}
+    }
+
     try {
       const { data: result, error } = await supabase
         .from('profiles')
@@ -116,13 +161,13 @@ export const profileApi = {
       if (error) throw error;
       return result as Profile;
     } catch (err: any) {
-      if (err?.message && (err.message.includes("'interests'") || err.message.includes("schema cache"))) {
+      if (err?.message && (err.message.includes("'interests'") || err.message.includes("schema cache") || err.message.includes("column"))) {
         const { interests, ...dataWithoutInterests } = data;
         const { data: fallbackResult, error: fallbackErr } = await supabase
           .from('profiles')
           .update({ ...dataWithoutInterests, updated_at: new Date().toISOString() })
           .eq('id', profileId)
-          .select()
+          .select(PROFILE_SELECT_FALLBACK)
           .single();
         if (fallbackErr) throw new Error(fallbackErr.message);
         return { ...(fallbackResult as Profile), interests: data.interests || [] };
