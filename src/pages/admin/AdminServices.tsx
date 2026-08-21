@@ -5,11 +5,33 @@ import { servicesApi } from '../../services/adminApi';
 import type { Service } from '../../types';
 import { DragDropList } from '../../components/admin/DragDropList';
 
+import * as LucideIcons from 'lucide-react';
+import { serviceIconLib } from '../../components/ui/Icon';
+
 const iconOptions = [
   'layout', 'briefcase', 'user', 'code', 'database', 'refresh-cw',
   'globe', 'mobile', 'monitor', 'server', 'cloud', 'cpu', 'hard-drive',
   'layers', 'box', 'archive', 'git-branch', 'terminal', 'zap', 'shield'
 ];
+
+function renderServiceIcon(iconName: string) {
+  if (!iconName) return <LucideIcons.Code className="w-5 h-5 text-purple-600" />;
+  const lower = iconName.toLowerCase();
+  const CustomIcon = serviceIconLib[lower];
+  if (CustomIcon) return <CustomIcon size={20} className="text-purple-600" />;
+
+  const pascalName = iconName
+    .split('-')
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+    .join('');
+
+  const LucideIcon = (LucideIcons as any)[pascalName] || (LucideIcons as any)[iconName.charAt(0).toUpperCase() + iconName.slice(1)];
+  if (LucideIcon && typeof LucideIcon === 'function') {
+    return <LucideIcon className="w-5 h-5 text-purple-600" />;
+  }
+
+  return <LucideIcons.Code className="w-5 h-5 text-purple-600" />;
+}
 
 export default function AdminServices() {
   const { isAuthenticated } = useAdmin();
@@ -188,20 +210,25 @@ export default function AdminServices() {
         onReorder={handleReorder}
         renderItem={(service) => {
           const isEditing = editingId === service.id;
+          const currentIcon = isEditing ? (editForm.icon || service.icon) : service.icon;
           return (
             <div className={`bg-white rounded-xl border ${isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'} overflow-hidden`}>
               <div className="p-4 border-b border-gray-200 bg-gray-50">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <span className="text-2xl">{service.icon}</span>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
+                      {renderServiceIcon(currentIcon)}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{isEditing ? (editForm.title || 'New Service') : service.title}</h3>
-                      <p className="text-sm text-gray-500">{service.description?.slice(0, 60)}...</p>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-gray-900 truncate">
+                        {isEditing ? (editForm.title || 'New Service') : service.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 truncate">
+                        {service.description ? `${service.description.slice(0, 60)}...` : 'No description'}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     {isEditing ? (
                       <>
                         <button onClick={saveEdit} className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
@@ -246,22 +273,23 @@ export default function AdminServices() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Icon (Lucide name)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
                     <div className="flex flex-wrap gap-2">
                       {iconOptions.map((icon) => (
                         <button
                           key={icon}
                           type="button"
                           onClick={() => setEditForm({ ...editForm, icon })}
-                          className={`px-3 py-2 rounded-lg border-2 text-sm font-mono transition-colors ${
-                            (editForm.icon || service.icon) === icon ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 text-xs font-mono transition-colors ${
+                            (editForm.icon || service.icon) === icon ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold' : 'border-gray-200 hover:border-gray-300 text-gray-600'
                           }`}
                         >
-                          {icon}
+                          {renderServiceIcon(icon)}
+                          <span>{icon}</span>
                         </button>
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Using Lucide icon names. Custom icons can be entered manually.</p>
+                    <p className="text-xs text-gray-500 mt-1">Select an icon for this service.</p>
                   </div>
                 </div>
               )}

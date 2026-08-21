@@ -23,6 +23,17 @@ export default function AdminProfile() {
 
   if (!isAuthenticated) return null;
 
+  const defaultInterests = [
+    'Learning new programming concepts',
+    'Exploring new technologies',
+    'Building websites',
+    'Solving problems',
+    'Working on real projects',
+    'Understanding how systems work',
+    'Improving existing code',
+    'Adapting to unfamiliar codebases',
+  ];
+
   const loadData = async () => {
     try {
       const [profile, philosophy, progression] = await Promise.all([
@@ -30,7 +41,10 @@ export default function AdminProfile() {
         profileApi.getPhilosophy(),
         profileApi.getProgression(),
       ]);
-      setData(profile);
+      const initialInterests = (profile && profile.interests && profile.interests.length > 0)
+        ? profile.interests
+        : defaultInterests;
+      setData({ ...profile, interests: initialInterests });
       setPhilosophyItems(philosophy);
       setProgressionItems(progression);
     } catch (err) {
@@ -416,13 +430,22 @@ export default function AdminProfile() {
                 </button>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={() => setData({ ...data, interests: [...(data.interests || []), ''] })}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              + Add Interest Item
-            </button>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setData({ ...data, interests: [...(data.interests || []), ''] })}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
+              >
+                + Add Interest Item
+              </button>
+              <button
+                type="button"
+                onClick={() => setData({ ...data, interests: defaultInterests })}
+                className="px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm"
+              >
+                Reset to Default Interests
+              </button>
+            </div>
           </div>
         </section>
 

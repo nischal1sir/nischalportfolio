@@ -44,6 +44,9 @@ create table if not exists public.profiles (
   updated_at      timestamptz not null default now()
 );
 
+-- Ensure interests column exists on existing profiles tables
+alter table public.profiles add column if not exists interests text[] not null default '{}';
+
 alter table public.profiles enable row level security;
 
 drop policy if exists "Public read profile" on public.profiles;
@@ -193,6 +196,16 @@ create table if not exists public.projects (
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );
+
+-- Ensure columns exist on existing projects tables
+alter table public.projects add column if not exists short_description text not null default '';
+alter table public.projects add column if not exists image_url text not null default '';
+alter table public.projects add column if not exists github_url text;
+alter table public.projects add column if not exists live_url text;
+alter table public.projects add column if not exists technologies text[] not null default '{}';
+alter table public.projects add column if not exists category text not null default 'web';
+alter table public.projects add column if not exists featured boolean not null default false;
+alter table public.projects add column if not exists order_index integer not null default 0;
 
 create index if not exists projects_featured_idx on public.projects (featured);
 create index if not exists projects_category_idx on public.projects (category);
@@ -366,7 +379,12 @@ create table if not exists public.gallery (
   updated_at      timestamptz not null default now()
 );
 
--- Alter table columns for existing database tables
+-- Ensure columns exist on existing gallery tables
+alter table public.gallery add column if not exists description text;
+alter table public.gallery add column if not exists category text not null default 'general';
+alter table public.gallery add column if not exists tags text[] not null default '{}';
+alter table public.gallery add column if not exists featured boolean not null default false;
+alter table public.gallery add column if not exists order_index integer not null default 0;
 alter table public.gallery add column if not exists shape text not null default 'medium_square';
 alter table public.gallery add column if not exists width integer not null default 4;
 alter table public.gallery add column if not exists height integer not null default 3;

@@ -106,13 +106,29 @@ export const profileApi = {
 
   async update(data: Partial<Profile>): Promise<Profile> {
     const profileId = data.id || '00000000-0000-0000-0000-000000000001';
-    const { data: result, error } = await supabase
-      .from('profiles')
-      .update({ ...data, updated_at: new Date().toISOString() })
-      .eq('id', profileId)
-      .select()
-      .single();
-    return handleResponse<Profile>(result, error);
+    try {
+      const { data: result, error } = await supabase
+        .from('profiles')
+        .update({ ...data, updated_at: new Date().toISOString() })
+        .eq('id', profileId)
+        .select()
+        .single();
+      if (error) throw error;
+      return result as Profile;
+    } catch (err: any) {
+      if (err?.message && (err.message.includes("'interests'") || err.message.includes("schema cache"))) {
+        const { interests, ...dataWithoutInterests } = data;
+        const { data: fallbackResult, error: fallbackErr } = await supabase
+          .from('profiles')
+          .update({ ...dataWithoutInterests, updated_at: new Date().toISOString() })
+          .eq('id', profileId)
+          .select()
+          .single();
+        if (fallbackErr) throw new Error(fallbackErr.message);
+        return { ...(fallbackResult as Profile), interests: data.interests || [] };
+      }
+      throw err;
+    }
   },
 
   async uploadResume(file: File): Promise<string> {
