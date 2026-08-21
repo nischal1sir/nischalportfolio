@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { useProjects } from '../hooks/usePortfolioData';
 import ProjectCard from '../components/ProjectCard';
 import { PageHero, PageSection } from '../components/ui/Page';
@@ -6,6 +6,7 @@ import { SectionHeading } from '../components/ui/Section';
 import { Skeleton } from '../components/ui/Skeleton';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useReady } from '../hooks/useReady';
+import Reveal from '../components/Reveal';
 
 const Projects = () => {
   usePageMeta({
@@ -17,6 +18,7 @@ const Projects = () => {
 
   const ready = useReady();
   const { projects, loading, error } = useProjects(false);
+  const [activeCategory, setActiveCategory] = useState<string>('All');
 
   if (!ready) return <ProjectsSkeleton />;
 
@@ -38,8 +40,14 @@ const Projects = () => {
     );
   }
 
-  // Get unique categories from projects
-  const categories = [...new Set(projects.map(p => p.category))].sort();
+  // Unique, sorted categories from actual project data
+  const categories = ['All', ...([...new Set(projects.map(p => p.category))].sort())];
+
+  // Filtered projects based on selected category
+  const filtered =
+    activeCategory === 'All'
+      ? projects
+      : projects.filter(p => p.category === activeCategory);
 
   return (
     <>
@@ -49,46 +57,43 @@ const Projects = () => {
         intro="A collection of projects I've built — from full-stack applications to frontend experiments. Each one taught me something new."
       />
 
-      <PageSection className="py-14 sm:py-16 max-w-6xl mx-auto">
+      {/* ── Category filter ── */}
+      <PageSection className="py-10 sm:py-12 max-w-6xl mx-auto">
         <Reveal>
           <SectionHeading
             eyebrow="Filter"
             title="Browse by category"
           />
         </Reveal>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <CategoryFilter
-            label="All"
-            active={true}
-            count={projects.length}
-          />
+        <div className="mt-6 flex flex-wrap gap-2 sm:gap-3">
           {categories.map((cat) => (
             <CategoryFilter
               key={cat}
               label={cat}
-              active={false}
-              count={projects.filter(p => p.category === cat).length}
+              active={activeCategory === cat}
+              count={cat === 'All' ? projects.length : projects.filter(p => p.category === cat).length}
+              onClick={() => setActiveCategory(cat)}
             />
           ))}
         </div>
       </PageSection>
 
-      <PageSection className="py-14 sm:py-16 max-w-6xl mx-auto">
+      {/* ── Project grid ── */}
+      <PageSection className="py-10 sm:py-14 max-w-6xl mx-auto">
         <Reveal>
           <SectionHeading
-            eyebrow="All projects"
-            title={`Showing ${projects.length} project${projects.length !== 1 ? 's' : ''}`}
+            eyebrow={activeCategory === 'All' ? 'All projects' : activeCategory}
+            title={`Showing ${filtered.length} project${filtered.length !== 1 ? 's' : ''}`}
           />
         </Reveal>
 
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.length > 0 ? (
-            projects.map((p) => <ProjectCard key={p.id} project={p} />)
+          {filtered.length > 0 ? (
+            filtered.map((p) => <ProjectCard key={p.id} project={p} />)
           ) : (
             <div className="col-span-full text-center py-16">
-              <Skeleton height={40} width="200" className="mx-auto mb-4" />
               <p className="text-[14px] text-[#888888]">
-                No projects yet. Add some in the admin panel!
+                No projects in <strong>{activeCategory}</strong> yet.
               </p>
             </div>
           )}
@@ -98,27 +103,40 @@ const Projects = () => {
   );
 };
 
-// Helper component for category filter buttons
-function CategoryFilter({ label, active, count }: { label: string; active: boolean; count: number }) {
+// ── Category filter button ────────────────────────────────────────────────────
+function CategoryFilter({
+  label,
+  active,
+  count,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  count: number;
+  onClick: () => void;
+}) {
   return (
     <button
+      onClick={onClick}
       className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
         active
-          ? 'bg-[#171717] text-white'
+          ? 'bg-[#171717] text-white shadow-sm'
           : 'bg-[#f5f5f5] text-[#4d4d4d] hover:bg-[#ebebeb]'
       }`}
     >
       {label}
-      <span className="text-[11px] px-2 py-0.5 rounded-full text-xs font-mono">
+      <span
+        className={`text-xs font-mono px-1.5 py-0.5 rounded-full ${
+          active ? 'bg-white/20 text-white' : 'bg-white text-[#666]'
+        }`}
+      >
         {count}
       </span>
     </button>
   );
 }
 
-// Import Reveal for use in the component
-import Reveal from '../components/Reveal';
-
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 function ProjectsSkeleton() {
   return (
     <>
@@ -128,7 +146,7 @@ function ProjectsSkeleton() {
         <Skeleton height={20} width="80%" />
       </section>
 
-      <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto">
+      <section className="px-5 sm:px-8 md:px-12 py-12 max-w-6xl mx-auto">
         <Skeleton height={16} width="50px" className="mb-6" />
         <div className="flex flex-wrap gap-3">
           {[0, 1, 2, 3, 4].map((i) => (
@@ -137,7 +155,7 @@ function ProjectsSkeleton() {
         </div>
       </section>
 
-      <section className="px-5 sm:px-8 md:px-12 py-14 sm:py-16 max-w-6xl mx-auto">
+      <section className="px-5 sm:px-8 md:px-12 py-12 max-w-6xl mx-auto">
         <Skeleton height={16} width="80px" className="mb-6" />
         <Skeleton height={28} width="200" className="mb-8" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
