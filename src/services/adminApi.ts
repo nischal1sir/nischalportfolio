@@ -623,7 +623,7 @@ export const galleryApi = {
   async create(data: Partial<GalleryImage>): Promise<GalleryImage> {
     const { data: result, error } = await supabase
       .from('gallery')
-      .insert({ ...data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .insert({ ...data, id: data.id || `gallery_${Date.now()}_${Math.random().toString(36).slice(2)}`, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .select()
       .single();
     return handleResponse<GalleryImage>(result, error);
