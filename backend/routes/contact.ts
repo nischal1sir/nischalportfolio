@@ -82,8 +82,11 @@ router.post('/', async (req: Request, res: Response, _next: NextFunction) => {
       subject: clean.subject,
       message: clean.message,
       createdAt: createdAt,
+      emailSent,
       _code: 200,
-      _codeMessage: 'Message received.',
+      _codeMessage: emailSent
+        ? 'Message received.'
+        : 'Message saved, but email delivery failed.',
     });
   } catch (err) {
     console.error('[contact] error:', err);

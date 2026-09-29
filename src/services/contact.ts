@@ -12,6 +12,7 @@ export interface ContactApiShape {
   subject: string;
   message: string;
   createdAt: string;
+  emailSent?: boolean;
   _code: number;
   _codeMessage: string;
 }
@@ -48,8 +49,10 @@ export async function submitContact(
       });
 
       const w3Data = await w3Res.json();
-      if (w3Res.ok && (w3Data.success || w3Res.status === 200)) {
+      if (w3Res.ok && w3Data.success === true) {
         emailDispatched = true;
+      } else {
+        console.warn('[contact] Web3Forms rejected submission:', w3Data);
       }
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') {
@@ -75,7 +78,7 @@ export async function submitContact(
         _codeMessage: 'No response body',
       }));
 
-      if (res.ok && (data._code === 200 || res.status === 200 || res.status === 201)) {
+      if (res.ok && data.emailSent === true) {
         emailDispatched = true;
       }
     } catch (err) {
@@ -96,8 +99,13 @@ export async function submitContact(
     console.warn('[contact] Supabase DB insert warn:', err);
   }
 
-  return {
-    ok: true,
-    message: 'Thanks for reaching out! Your message has been sent successfully.',
-  };
+  return emailDispatched
+    ? {
+        ok: true,
+        message: 'Thanks for reaching out! Your message has been sent successfully.',
+      }
+    : {
+        ok: false,
+        message: 'Your message was saved, but email delivery failed. Please try again later.',
+      };
 }
