@@ -1,4 +1,4 @@
-import { createHashRouter } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
 const App = lazy(() => import('../App').then(m => ({ default: m.default })));
@@ -26,7 +26,7 @@ const AdminNav = lazy(() => import('../pages/admin/AdminNav').then(m => ({ defau
 
 const Loading = () => <div className="flex h-screen items-center justify-center">Loading...</div>;
 
-const routes = createHashRouter([
+const routes = createBrowserRouter([
   {
     path: '/',
     element: (
